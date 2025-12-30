@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Number Sense Practice Program with 35+ problem types and test simulations">
+    <title>Number Sense Practice 2021+</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <h1>Number Sense Practice</h1>
+            </div>
+            <div class="header-info">
+                <span id="current-time"></span>
+                <span id="version">v2.0</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="user-stats">
+                    <h3><i class="fas fa-chart-line"></i> Stats</h3>
+                    <div class="stat">
+                        <span>Today's Score:</span>
+                        <span id="daily-score">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>Total Problems:</span>
+                        <span id="total-problems">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>Accuracy:</span>
+                        <span id="accuracy">0%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <span id="progress-text">0%</span>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <button class="sidebar-btn" onclick="startQuickPractice()">
+                        <i class="fas fa-play-circle"></i> Quick Practice
+                    </button>
+                    <button class="sidebar-btn" onclick="startTimedTest()">
+                        <i class="fas fa-clock"></i> Timed Test
+                    </button>
+                    <button class="sidebar-btn" onclick="showFormulas()">
+                        <i class="fas fa-book"></i> Formulas
+                    </button>
+                    <button class="sidebar-btn" onclick="showResults()">
+                        <i class="fas fa-chart-bar"></i> Results
+                    </button>
+                </div>
+
+                <div class="problem-types">
+                    <h3><i class="fas fa-puzzle-piece"></i> Problem Types</h3>
+                    <div class="type-tags" id="type-tags">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Game Area -->
+            <section class="game-area">
+                <!-- Menu Screen -->
+                <div id="menu-screen" class="screen active">
+                    <div class="welcome">
+                        <h2><i class="fas fa-calculator"></i> Welcome to Number Sense Practice</h2>
+                        <p class="subtitle">Master mental math with 35+ problem types based on 2021 test patterns</p>
+                    </div>
+
+                    <div class="menu-grid">
+                        <div class="menu-card" onclick="startPracticeMode('quick')">
+                            <div class="card-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3>Quick Practice</h3>
+                            <p>10 random problems with instant feedback</p>
+                            <span class="card-badge">Beginner</span>
+                        </div>
+
+                        <div class="menu-card" onclick="startPracticeMode('full')">
+                            <div class="card-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <h3>Full Test Simulation</h3>
+                            <p>80 problems with 10-minute timer</p>
+                            <span class="card-badge">Advanced</span>
+                        </div>
+
+                        <div class="menu-card" onclick="startPracticeMode('focus')">
+                            <div class="card-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <h3>Focus Practice</h3>
+                            <p>Target specific problem types</p>
+                            <span class="card-badge">Custom</span>
+                        </div>
+
+                        <div class="menu-card" onclick="showScreen('formulas')">
+                            <div class="card-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>Learn Mode</h3>
+                            <p>Study shortcuts and formulas</p>
+                            <span class="card-badge">Learning</span>
+                        </div>
+
+                        <div class="menu-card" onclick="startPracticeMode('estimation')">
+                            <div class="card-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3>Estimation Practice</h3>
+                            <p>Master starred (*) problems</p>
+                            <span class="card-badge">5% Tolerance</span>
+                        </div>
+
+                        <div class="menu-card" onclick="showScreen('history')">
+                            <div class="card-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h3>Progress History</h3>
+                            <p>View your improvement over time</p>
+                            <span class="card-badge">Analytics</span>
+                        </div>
+                    </div>
+
+                    <div class="recent-scores">
+                        <h3><i class="fas fa-chart-line"></i> Recent Scores</h3>
+                        <div id="recent-scores-list">
+                            <p class="empty-state">Complete a practice session to see scores</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice Screen -->
+                <div id="practice-screen" class="screen">
+                    <div class="practice-header">
+                        <div class="problem-counter">
+                            <span id="problem-number">1</span> of <span id="total-in-session">10</span>
+                        </div>
+                        <div class="timer" id="timer-container">
+                            <i class="fas fa-clock"></i>
+                            <span id="timer">10:00</span>
+                        </div>
+                        <div class="score-display">
+                            <i class="fas fa-star"></i>
+                            <span id="current-score">0</span> points
+                        </div>
+                    </div>
+
+                    <div class="problem-display">
+                        <div class="problem-type-badge" id="problem-type-badge">Addition</div>
+                        <h2 id="problem-text">41720 - 18420 =</h2>
+                        <div class="hint-container" id="hint-container">
+                            <p id="hint-text">Subtract the thousands, hundreds, tens, and ones separately</p>
+                        </div>
+                    </div>
+
+                    <div class="input-section">
+                        <div class="input-group">
+                            <input type="text" 
+                                   id="answer-input" 
+                                   placeholder="Type your answer here..."
+                                   autocomplete="off"
+                                   onkeypress="handleKeyPress(event)">
+                            <button class="submit-btn" onclick="submitAnswer()">
+                                <i class="fas fa-paper-plane"></i> Submit
+                            </button>
+                        </div>
+                        
+                        <div class="quick-commands">
+                            <button class="cmd-btn" onclick="skipProblem()">
+                                <i class="fas fa-forward"></i> Skip
+                            </button>
+                            <button class="cmd-btn" onclick="showHint()">
+                                <i class="fas fa-lightbulb"></i> Hint
+                            </button>
+                            <button class="cmd-btn" onclick="quitPractice()">
+                                <i class="fas fa-sign-out-alt"></i> Quit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="feedback-area" id="feedback-area">
+                        <!-- Feedback messages appear here -->
+                    </div>
+                </div>
+
+                <!-- Formulas Screen -->
+                <div id="formulas-screen" class="screen">
+                    <div class="formulas-header">
+                        <h2><i class="fas fa-book-open"></i> Number Sense Formulas & Shortcuts</h2>
+                        <div class="formula-categories">
+                            <button class="category-btn active" onclick="showFormulaCategory('multiplication')">Multiplication</button>
+                            <button class="category-btn" onclick="showFormulaCategory('fractions')">Fractions</button>
+                            <button class="category-btn" onclick="showFormulaCategory('algebra')">Algebra</button>
+                            <button class="category-btn" onclick="showFormulaCategory('geometry')">Geometry</button>
+                            <button class="category-btn" onclick="showFormulaCategory('estimation')">Estimation</button>
+                        </div>
+                    </div>
+
+                    <div class="formulas-content">
+                        <div id="multiplication-formulas" class="formula-category active">
+                            <h3><i class="fas fa-times"></i> Multiplication Tricks</h3>
+                            <div class="formula-card">
+                                <h4>×11 Trick</h4>
+                                <p>23 × 11 = 2(2+3)3 = 253</p>
+                                <p>47 × 11 = 4(4+7)7 = 517 (carry the 1)</p>
+                            </div>
+                            <div class="formula-card">
+                                <h4>×25 Trick</h4>
+                                <p>Multiply by 100, divide by 4</p>
+                                <p>36 × 25 = (36 × 100) ÷ 4 = 3600 ÷ 4 = 900</p>
+                            </div>
+                            <div class="formula-card">
+                                <h4>×5 Trick</h4>
+                                <p>Multiply by 10, divide by 2</p>
+                                <p>48 × 5 = (48 × 10) ÷ 2 = 480 ÷ 2 = 240</p>
+                            </div>
+                        </div>
+
+                        <div id="fractions-formulas" class="formula-category">
+                            <h3><i class="fas fa-divide"></i> Fraction/Decimal/Percent Equivalents</h3>
+                            <div class="formula-grid">
+                                <div class="formula-item">1/8 = 0.125 = 12.5%</div>
+                                <div class="formula-item">1/4 = 0.25 = 25%</div>
+                                <div class="formula-item">3/8 = 0.375 = 37.5%</div>
+                                <div class="formula-item">1/2 = 0.5 = 50%</div>
+                                <div class="formula-item">5/8 = 0.625 = 62.5%</div>
+                                <div class="formula-item">3/4 = 0.75 = 75%</div>
+                                <div class="formula-item">7/8 = 0.875 = 87.5%</div>
+                            </div>
+                        </div>
+
+                        <div id="algebra-formulas" class="formula-category">
+                            <h3><i class="fas fa-superscript"></i> Algebra Formulas</h3>
+                            <div class="formula-card">
+                                <h4>Perfect Squares</h4>
+                                <p>11²=121, 12²=144, 13²=169, 14²=196, 15²=225</p>
+                            </div>
+                            <div class="formula-card">
+                                <h4>System Equations</h4>
+                                <p>If p + q = n and p = q + d, then q = (n - d)/2</p>
+                            </div>
+                            <div class="formula-card">
+                                <h4>Binomial Squares</h4>
+                                <p>(a + b)² = a² + 2ab + b²</p>
+                                <p>(a - b)² = a² - 2ab + b²</p>
+                            </div>
+                        </div>
+
+                        <div id="geometry-formulas" class="formula-category">
+                            <h3><i class="fas fa-shapes"></i> Geometry Formulas</h3>
+                            <div class="formula-card">
+                                <h4>Pythagorean Triples</h4>
+                                <p>3-4-5, 5-12-13, 7-24-25, 8-15-17, 9-40-41</p>
+                            </div>
+                            <div class="formula-card">
+                                <h4>Polygonal Numbers</h4>
+                                <p>Triangular: Tₙ = n(n+1)/2</p>
+                                <p>Pentagonal: Pₙ = n(3n-1)/2</p>
+                                <p>Hexagonal: Hₙ = n(2n-1)</p>
+                            </div>
+                        </div>
+
+                        <div id="estimation-formulas" class="formula-category">
+                            <h3><i class="fas fa-star"></i> Estimation Techniques</h3>
+                            <div class="formula-card">
+                                <h4>Square Root Estimation</h4>
+                                <p>√n ≈ average of nearest perfect squares</p>
+                                <p>√50 ≈ (7 + 7.07)/2 ≈ 7.04</p>
+                            </div>
+                            <div class="formula-card">
+                                <h4>Large Addition</h4>
+                                <p>Round to nearest hundred then add</p>
+                                <p>1234 + 5678 ≈ 1200 + 5700 = 6900</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Screen -->
+                <div id="results-screen" class="screen">
+                    <div class="results-header">
+                        <h2><i class="fas fa-trophy"></i> Practice Results</h2>
+                        <div class="session-info" id="session-info">
+                            Quick Practice • 10 problems • 5:23 minutes
+                        </div>
+                    </div>
+
+                    <div class="score-display-large">
+                        <div class="score-circle">
+                            <span id="final-score">8</span>
+                            <small>out of</small>
+                            <span id="total-possible">10</span>
+                        </div>
+                        <div class="score-percentage" id="score-percentage">80%</div>
+                    </div>
+
+                    <div class="results-details">
+                        <div class="detail-card">
+                            <h4><i class="fas fa-check-circle"></i> Correct</h4>
+                            <span class="detail-value" id="correct-count">8</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4><i class="fas fa-times-circle"></i> Incorrect</h4>
+                            <span class="detail-value" id="incorrect-count">1</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4><i class="fas fa-forward"></i> Skipped</h4>
+                            <span class="detail-value" id="skipped-count">1</span>
+                        </div>
+                        <div class="detail-card">
+                            <h4><i class="fas fa-clock"></i> Time</h4>
+                            <span class="detail-value" id="time-taken">5:23</span>
+                        </div>
+                    </div>
+
+                    <div class="performance-feedback" id="performance-feedback">
+                        <h3><i class="fas fa-chart-line"></i> Performance Analysis</h3>
+                        <p>Great job! You're performing at a regional finalist level. Focus on estimation problems to improve your score.</p>
+                    </div>
+
+                    <div class="missed-problems" id="missed-problems-container">
+                        <h3><i class="fas fa-exclamation-circle"></i> Review Missed Problems</h3>
+                        <div class="missed-list">
+                            <!-- Filled by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="showScreen('menu')">
+                            <i class="fas fa-home"></i> Back to Menu
+                        </button>
+                        <button class="action-btn secondary" onclick="reviewMissed()">
+                            <i class="fas fa-redo"></i> Review Missed
+                        </button>
+                        <button class="action-btn" onclick="startSimilarPractice()">
+                            <i class="fas fa-play"></i> Similar Practice
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Screen -->
+                <div id="history-screen" class="screen">
+                    <div class="history-header">
+                        <h2><i class="fas fa-history"></i> Progress History</h2>
+                        <div class="history-filter">
+                            <button class="filter-btn active">All Time</button>
+                            <button class="filter-btn">This Week</button>
+                            <button class="filter-btn">Today</button>
+                        </div>
+                    </div>
+
+                    <div class="history-chart">
+                        <canvas id="progress-chart"></canvas>
+                    </div>
+
+                    <div class="history-stats">
+                        <div class="stat-card">
+                            <h4>Best Score</h4>
+                            <span class="stat-value" id="best-score">75/80</span>
+                            <small>94% • 2 days ago</small>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Average Score</h4>
+                            <span class="stat-value" id="average-score">68%</span>
+                            <small>Last 10 sessions</small>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Total Practice</h4>
+                            <span class="stat-value" id="total-practice">15h 23m</span>
+                            <small>Since you started</small>
+                        </div>
+                    </div>
+
+                    <div class="history-list" id="history-list">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>Number Sense Practice Program • Based on 2021 UIL Test Patterns • Made with ❤️ for math enthusiasts</p>
+                <div class="footer-links">
+                    <a href="#" onclick="showInstructions()"><i class="fas fa-question-circle"></i> Help</a>
+                    <a href="#" onclick="resetProgress()"><i class="fas fa-redo"></i> Reset</a>
+                    <a href="#" onclick="exportData()"><i class="fas fa-download"></i> Export</a>
+                    <a href="https://github.com/yourusername/number-sense-practice" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- Instructions Modal -->
+    <div id="instructions-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2><i class="fas fa-info-circle"></i> How to Use</h2>
+            <div class="instructions">
+                <h3>Basic Navigation</h3>
+                <p>• Click menu cards to select practice mode</p>
+                <p>• Type answers in the input field and press Enter</p>
+                <p>• Use Skip button if you don't know the answer</p>
+                <p>• Review formulas in the Learn Mode</p>
+                
+                <h3>Practice Modes</h3>
+                <p><strong>Quick Practice:</strong> 10 random problems with instant feedback</p>
+                <p><strong>Full Test:</strong> 80 problems with 10-minute timer (simulates actual test)</p>
+                <p><strong>Focus Practice:</strong> Target specific problem types you want to improve</p>
+                <p><strong>Estimation Practice:</strong> Work on starred (*) problems with 5% tolerance</p>
+                
+                <h3>Keyboard Shortcuts</h3>
+                <p><strong>Enter:</strong> Submit answer</p>
+                <p><strong>Esc:</strong> Return to menu</p>
+                <p><strong>Space:</strong> Skip problem</p>
+                <p><strong>H:</strong> Show hint</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="problem-generators.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
