@@ -1,0 +1,127 @@
+<!-- Replace the header section -->
+<header class="header">
+    <div class="logo">
+        <div class="logo-icon">
+            <i class="fas fa-brain"></i>
+        </div>
+        <h1>Number Sense Practice</h1>
+    </div>
+    <div class="header-controls">
+        <button id="home-btn" class="home-btn" onclick="app.goHome()" style="display: none;">
+            <i class="fas fa-home"></i>
+        </button>
+        <div class="header-info">
+            <span class="time-display" id="current-time"></span>
+            <span class="version">v2.1</span>
+        </div>
+    </div>
+</header>
+
+<!-- Update the quick actions section in sidebar -->
+<div class="actions-panel">
+    <h3 class="panel-header">
+        <i class="fas fa-bolt"></i>
+        Quick Actions
+    </h3>
+    <div class="action-grid">
+        <button class="action-btn" data-action="quick">
+            <i class="fas fa-play-circle"></i>
+            Quick Practice
+        </button>
+        <button class="action-btn" data-action="timed">
+            <i class="fas fa-clock"></i>
+            Timed Test
+        </button>
+        <button class="action-btn" data-action="formulas">
+            <i class="fas fa-book"></i>
+            Formulas
+        </button>
+        <button class="action-btn" data-action="results">
+            <i class="fas fa-chart-bar"></i>
+            Results
+        </button>
+    </div>
+</div>
+
+<!-- Update the practice screen buttons -->
+<div class="input-section">
+    <div class="input-group">
+        <input type="text" 
+               id="answer-input" 
+               class="answer-input"
+               placeholder="Type your answer..."
+               autocomplete="off">
+        <button id="submit-btn" class="submit-btn">
+            <i class="fas fa-paper-plane"></i> Submit
+        </button>
+    </div>
+    
+    <div class="command-grid">
+        <button id="skip-btn" class="command-btn skip">
+            <i class="fas fa-forward"></i> Skip
+        </button>
+        <button id="hint-btn" class="command-btn">
+            <i class="fas fa-lightbulb"></i> Hint
+        </button>
+        <button id="quit-btn" class="command-btn quit">
+            <i class="fas fa-sign-out-alt"></i> Quit
+        </button>
+    </div>
+</div>
+
+<!-- Update the menu cards onclick handlers -->
+<div class="menu-grid">
+    <div class="menu-card" onclick="startPracticeMode('quick')">
+        <div class="card-icon">
+            <i class="fas fa-bolt"></i>
+        </div>
+        <h3>Quick Practice</h3>
+        <p>10 random problems with instant feedback</p>
+        <span class="card-badge">Beginner</span>
+    </div>
+
+    <div class="menu-card" onclick="startPracticeMode('full')">
+        <div class="card-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <h3>Full Test Simulation</h3>
+        <p>80 problems with 10-minute timer</p>
+        <span class="card-badge">Advanced</span>
+    </div>
+
+    <div class="menu-card" onclick="startPracticeMode('focus')">
+        <div class="card-icon">
+            <i class="fas fa-bullseye"></i>
+        </div>
+        <h3>Focus Practice</h3>
+        <p>Target specific problem types</p>
+        <span class="card-badge">Custom</span>
+    </div>
+
+    <div class="menu-card" onclick="showScreen('formulas')">
+        <div class="card-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h3>Learn Mode</h3>
+        <p>Study shortcuts and formulas</p>
+        <span class="card-badge">Learning</span>
+    </div>
+
+    <div class="menu-card" onclick="startPracticeMode('estimation')">
+        <div class="card-icon">
+            <i class="fas fa-star"></i>
+        </div>
+        <h3>Estimation Practice</h3>
+        <p>Master starred (*) problems</p>
+        <span class="card-badge">5% Tolerance</span>
+    </div>
+
+    <div class="menu-card" onclick="showScreen('history')">
+        <div class="card-icon">
+            <i class="fas fa-history"></i>
+        </div>
+        <h3>Progress History</h3>
+        <p>View your improvement over time</p>
+        <span class="card-badge">Analytics</span>
+    </div>
+</div>
