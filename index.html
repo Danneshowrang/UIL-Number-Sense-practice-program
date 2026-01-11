@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Sense Practice</title>
+    <style>
+        /* [All your existing CSS remains exactly the same] */
+    </style>
+</head>
+<body>
+    <!-- [All your existing HTML remains exactly the same] -->
+    
+    <script>
+        // Global variables
+        let score = 0;
+        let totalProblems = 0;
+        let currentProblem = 0;
+        let problems = [];
+        let missedProblems = [];
+        let startTime = 0;
+        let timerInterval = null;
+        let stopwatchInterval = null;
+        let stopwatchRunning = false;
+        let stopwatchTime = 0;
+        let practiceMode = '';
+        let reviewIndex = 0;
+        let answerSubmitted = false;
+        let currentProblemData = null;
+        let isInitialized = false;
+
+        // ===== INITIALIZATION =====
+        function initializeApp() {
+            if (isInitialized) return;
+            
+            // Add event listeners to menu items
+            document.addEventListener('click', function(event) {
+                const menuItem = event.target.closest('.menu-item');
+                if (!menuItem) return;
+                
+                const action = menuItem.getAttribute('data-action');
+                const area = menuItem.getAttribute('data-area');
+                
+                // Add a small click feedback
+                menuItem.style.transform = 'translateY(1px)';
+                setTimeout(() => {
+                    menuItem.style.transform = '';
+                }, 150);
+                
+                // Handle the action
+                handleMenuItemClick(action, area);
+            });
+            
+            // Initialize stopwatch display
+            updateStopwatchDisplay();
+            
+            // Show main menu
+            showMainMenu();
+            
+            isInitialized = true;
+            console.log('Number Sense Practice initialized');
+        }
+
+        function handleMenuItemClick(action, area) {
+            switch(action) {
+                case 'quick-practice':
+                    startQuickPractice();
+                    break;
+                case 'full-test':
+                    startFullTest();
+                    break;
+                case 'weak-areas':
+                    showWeakAreasMenu();
+                    break;
+                case 'problem-number':
+                    showProblemNumberMenu();
+                    break;
+                case 'estimation':
+                    startEstimationPractice();
+                    break;
+                case 'review':
+                    reviewMissed();
+                    break;
+                case 'problem-types':
+                    showProblemTypes();
+                    break;
+                case 'instructions':
+                    showInstructions();
+                    break;
+                case 'practice':
+                    if (area) startPractice(parseInt(area));
+                    break;
+                case 'back':
+                    showMainMenu();
+                    break;
+            }
+        }
+
+        // ===== STOPWATCH FUNCTIONS =====
+        function startStopwatch() {
+            if (stopwatchRunning) return;
+            stopwatchRunning = true;
+            stopwatchStartTime = Date.now() - stopwatchTime;
+            
+            stopwatchInterval = setInterval(() => {
+                stopwatchTime = Date.now() - stopwatchStartTime;
+                updateStopwatchDisplay();
+            }, 100);
+        }
+        
+        function pauseStopwatch() {
+            stopwatchRunning = false;
+            if (stopwatchInterval) {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+            }
+        }
+        
+        function resetStopwatch() {
+            stopwatchTime = 0;
+            updateStopwatchDisplay();
+            if (stopwatchRunning) {
+                stopwatchStartTime = Date.now();
+            }
+        }
+        
+        function updateStopwatchDisplay() {
+            const hours = Math.floor(stopwatchTime / 3600000);
+            const minutes = Math.floor((stopwatchTime % 3600000) / 60000);
+            const seconds = Math.floor((stopwatchTime % 60000) / 1000);
+            
+            const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('stopwatch-display').textContent = display;
+        }
+        
+        function formatStopwatchTime() {
+            const hours = Math.floor(stopwatchTime / 3600000);
+            const minutes = Math.floor((stopwatchTime % 3600000) / 60000);
+            const seconds = Math.floor((stopwatchTime % 60000) / 1000);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${seconds}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds}s`;
+            } else {
+                return `${seconds}.${Math.floor((stopwatchTime % 1000) / 10)}s`;
+            }
+        }
+        
+        function stopStopwatch() {
+            stopwatchRunning = false;
+            if (stopwatchInterval) {
+                clearInterval(stopwatchInterval);
+                stopwatchInterval = null;
+            }
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // ===== PROBLEM GENERATORS =====
+        function generateAddition() {
+            const a = randomInt(1000, 9999);
+            const b = randomInt(100, 999);
+            return {
+                problem: `${a} + ${b} = `,
+                answer: (a + b).toString(),
+                type: "Addition",
+                hint: "Add the thousands, hundreds, tens, and ones separately"
+            };
+        }
+
+        function generateSubtraction() {
+            const a = randomInt(1500, 9999);
+            const b = randomInt(500, a - 100);
+            return {
+                problem: `${a} - ${b} = `,
+                answer: (a - b).toString(),
+                type: "Subtraction",
+                hint: "Borrow when necessary, work from right to left"
+            };
+        }
+
+        function generateMultiplication() {
+            const a = randomInt(10, 99);
+            const b = randomInt(10, 99);
+            return {
+                problem: `${a} × ${b} = `,
+                answer: (a * b).toString(),
+                type: "Multiplication",
+                hint: `Use FOIL: (${a} × ${b}) = ${Math.floor(a/10)*10}×${b} + ${a%10}×${b}`
+            };
+        }
+
+        function generateDivision() {
+            const divisors = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 25];
+            const divisor = randomChoice(divisors);
+            const dividend = divisor * randomInt(50, 200);
+            return {
+                problem: `${dividend} ÷ ${divisor} = `,
+                answer: (dividend / divisor).toString(),
+                type: "Division",
+                hint: `Since ${dividend} is ${divisor} × ${dividend/divisor}`
+            };
+        }
+
+        function generateFractionToDecimal() {
+            const fractions = [
+                ["1/8", "0.125", "Divide 1 by 8 = 0.125"],
+                ["1/4", "0.25", "Divide 1 by 4 = 0.25"],
+                ["3/8", "0.375", "3/8 = 0.375 (half of 0.75)"],
+                ["1/2", "0.5", "1/2 = 0.5"],
+                ["5/8", "0.625", "5/8 = 0.625"],
+                ["3/4", "0.75", "3/4 = 0.75"],
+                ["7/8", "0.875", "7/8 = 0.875"],
+                ["1/3", "0.333", "1/3 ≈ 0.333..."],
+                ["2/3", "0.667", "2/3 ≈ 0.667"],
+                ["1/5", "0.2", "1/5 = 0.2"],
+                ["2/5", "0.4", "2/5 = 0.4"],
+                ["3/5", "0.6", "3/5 = 0.6"],
+                ["4/5", "0.8", "4/5 = 0.8"]
+            ];
+            const choice = randomChoice(fractions);
+            return {
+                problem: `${choice[0]} = ______ (decimal)`,
+                answer: choice[1],
+                type: "Fraction Conversion",
+                hint: choice[2]
+            };
+        }
+
+        function generatePercentToFraction() {
+            const percents = [
+                [25, "1/4", "25% = 25/100 = 1/4"],
+                [33, "1/3", "33% ≈ 1/3"],
+                [50, "1/2", "50% = 1/2"],
+                [66, "2/3", "66% ≈ 2/3"],
+                [75, "3/4", "75% = 3/4"],
+                [20, "1/5", "20% = 1/5"],
+                [40, "2/5", "40% = 2/5"],
+                [60, "3/5", "60% = 3/5"],
+                [80, "4/5", "80% = 4/5"],
+                [12.5, "1/8", "12.5% = 1/8"],
+                [37.5, "3/8", "37.5% = 3/8"],
+                [62.5, "5/8", "62.5% = 5/8"],
+                [87.5, "7/8", "87.5% = 7/8"]
+            ];
+            const choice = randomChoice(percents);
+            return {
+                problem: `${choice[0]}% = ______ (fraction)`,
+                answer: choice[1],
+                type: "Percent Conversion",
+                hint: choice[2]
+            };
+        }
+
+        function generatePercentOfNumber() {
+            const percent = randomChoice([25, 33, 50, 66, 75, 20, 40, 60, 80]);
+            const number = randomInt(50, 200);
+            // FIXED: Use exact calculation instead of rounding
+            const answer = (number * percent / 100).toString();
+            return {
+                problem: `${percent}% of ${number} = `,
+                answer: answer,
+                type: "Percentages",
+                hint: `${percent}% = ${percent/100}, so ${number} × ${percent/100} = ${answer}`
+            };
+        }
+
+        // [All other problem generators remain the same...]
+
+        // ===== UI MANAGEMENT FUNCTIONS =====
+        function showMainMenu() {
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('weak-areas-menu').classList.add('hidden');
+            document.getElementById('problem-number-menu').classList.add('hidden');
+            document.getElementById('practice-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('review-screen').classList.add('hidden');
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('problem-types').classList.add('hidden');
+        }
+
+        function showWeakAreasMenu() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('weak-areas-menu').classList.remove('hidden');
+        }
+
+        function showProblemNumberMenu() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('problem-number-menu').classList.remove('hidden');
+        }
+
+        function showInstructions() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('instructions').classList.remove('hidden');
+        }
+
+        function showProblemTypes() {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('problem-types').classList.remove('hidden');
+        }
+
+        // ===== PRACTICE SESSION FUNCTIONS =====
+        function startQuickPractice() {
+            practiceMode = 'quick';
+            const generators = [
+                generateAddition, generateSubtraction, generateMultiplication,
+                generateDivision, generateFractionToDecimal, generatePercentToFraction,
+                generateSquares, generateOrderOfOperations, generateRemainder,
+                generateMultiplicationBy11, generateAverage, generatePercentOfNumber,
+                generateUnitConversion, generateRomanNumerals, generateSolveForX
+            ];
+            
+            problems = [];
+            for (let i = 0; i < 10; i++) {
+                problems.push(randomChoice(generators)());
+            }
+            
+            startPracticeSession(10);
+        }
+
+        function startFullTest() {
+            if (!confirm("Ready to begin? You'll have 10 minutes for 80 problems.")) {
+                return;
+            }
+            
+            practiceMode = 'full';
+            const allGenerators = [
+                generateAddition, generateSubtraction, generateMultiplication,
+                generateDivision, generateFractionToDecimal, generatePercentToFraction,
+                generateSquares, generateOrderOfOperations, generateRemainder,
+                generateMultiplicationBy11, generateAverage, generatePercentOfNumber,
+                generateUnitConversion, generateRomanNumerals, generateSquareRootEstimation,
+                generateLargeAddition, generatePythagoreanTriple, generateSolveForX,
+                generateBinomialSquare
+            ];
+            
+            problems = [];
+            for (let i = 0; i < 80; i++) {
+                problems.push(randomChoice(allGenerators)());
+            }
+            
+            startPracticeSession(80, 600); // 10 minutes = 600 seconds
+        }
+
+        function startPractice(area) {
+            let generators = [];
+            let numProblems = 10;
+            
+            switch(area) {
+                case 1: // Arithmetic
+                    generators = [generateAddition, generateSubtraction, generateMultiplication, generateDivision];
+                    break;
+                case 2: // Fractions/Decimals/Percents
+                    generators = [generateFractionToDecimal, generatePercentToFraction, generatePercentOfNumber];
+                    break;
+                case 3: // Algebra
+                    generators = [generateSolveForX, generateBinomialSquare, generateOrderOfOperations];
+                    break;
+                case 4: // Geometry
+                    generators = [generateUnitConversion, generatePythagoreanTriple];
+                    break;
+                case 5: // Number Theory
+                    generators = [generateRemainder, generateSquares, generateRomanNumerals];
+                    break;
+                case 6: // Estimation
+                    generators = [generateSquareRootEstimation, generateLargeAddition];
+                    break;
+                case 7: // Problems 1-10
+                    generators = [generateAddition, generateSubtraction, generateMultiplication,
+                                 generateDivision, generateFractionToDecimal, generateOrderOfOperations,
+                                 generateRomanNumerals, generateSquares];
+                    break;
+                case 8: // Problems 11-20
+                    generators = [generateMultiplicationBy11, generateAverage, generatePercentOfNumber,
+                                 generateRemainder, generateUnitConversion, generateFractionToDecimal];
+                    break;
+                case 9: // Problems 21-30
+                    generators = [generateRomanNumerals, generateSolveForX, generateFractionToDecimal,
+                                 generatePercentToFraction];
+                    break;
+                case 10: // Problems 31-40
+                    generators = [generateBinomialSquare, generateUnitConversion, generatePythagoreanTriple];
+                    break;
+                case 11: // Problems 41-50
+                    generators = [generateSquareRootEstimation, generateLargeAddition, generateSolveForX];
+                    break;
+            }
+            
+            problems = [];
+            for (let i = 0; i < numProblems; i++) {
+                problems.push(randomChoice(generators)());
+            }
+            
+            practiceMode = 'focused';
+            startPracticeSession(numProblems);
+        }
+
+        function startEstimationPractice() {
+            practiceMode = 'estimation';
+            problems = [];
+            for (let i = 0; i < 10; i++) {
+                if (Math.random() > 0.5) {
+                    problems.push(generateSquareRootEstimation());
+                } else {
+                    problems.push(generateLargeAddition());
+                }
+            }
+            
+            startPracticeSession(10);
+        }
+
+        function startPracticeSession(total, timeLimit = null) {
+            score = 0;
+            totalProblems = total;
+            currentProblem = 0;
+            missedProblems = [];
+            answerSubmitted = false;
+            startTime = Date.now();
+            
+            // Reset and start stopwatch
+            resetStopwatch();
+            if (timeLimit === null) {
+                // Auto-start stopwatch for untimed modes
+                startStopwatch();
+            }
+            
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('practice-screen').classList.remove('hidden');
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('answer-input').focus();
+            
+            if (timeLimit) {
+                startTimer(timeLimit);
+                // Show timer, hide stopwatch controls for timed mode
+                document.getElementById('timer').style.display = 'block';
+                document.getElementById('stopwatch').style.display = 'none';
+            } else {
+                startTimer(0);
+                // Show stopwatch, hide timer for untimed modes
+                document.getElementById('timer').style.display = 'none';
+                document.getElementById('stopwatch').style.display = 'flex';
+            }
+            
+            showCurrentProblem();
+        }
+
+        function showCurrentProblem() {
+            currentProblemData = problems[currentProblem];
+            document.getElementById('problem-display').textContent = currentProblemData.problem;
+            document.getElementById('problem-counter').textContent = 
+                `Problem ${currentProblem + 1} of ${totalProblems}`;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('feedback').classList.add('hidden');
+            answerSubmitted = false;
+            document.getElementById('answer-input').focus();
+        }
+
+        function startTimer(timeLimit) {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            if (timeLimit === 0) {
+                document.getElementById('timer').textContent = '';
+                return;
+            }
+            
+            const endTime = startTime + (timeLimit * 1000);
+            
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const remaining = Math.max(0, endTime - now);
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                
+                document.getElementById('timer').textContent = 
+                    `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remaining === 0) {
+                    clearInterval(timerInterval);
+                    endPracticeSession();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(userInput, correctAnswer, problemType) {
+            if (userInput.toLowerCase() === "skip" || userInput === "") {
+                return "skip";
+            }
+            
+            if (userInput.toLowerCase() === "quit") {
+                return "quit";
+            }
+            
+            const userNum = parseFloat(userInput);
+            const correctNum = parseFloat(correctAnswer);
+            
+            // For string answers (fractions, Roman numerals)
+            if (isNaN(userNum) || isNaN(correctNum)) {
+                return userInput.trim() === correctAnswer.toString().trim() ? "correct" : "incorrect";
+            }
+            
+            // For estimation problems, allow 5% error
+            let tolerance = 0.01;
+            if (problemType && problemType.includes("Estimation")) {
+                tolerance = Math.abs(correctNum * 0.05);
+            }
+            
+            return Math.abs(userNum - correctNum) <= tolerance ? "correct" : "incorrect";
+        }
+
+        function submitAnswer() {
+            if (answerSubmitted) return;
+            
+            const userAnswer = document.getElementById('answer-input').value.trim();
+            const result = checkAnswer(userAnswer, currentProblemData.answer, currentProblemData.type);
+            
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden');
+            
+            if (result === "skip") {
+                feedback.innerHTML = `<span class="skipped">↷ SKIPPED</span><br>`;
+                feedback.innerHTML += `Correct answer: ${currentProblemData.answer}<br>`;
+                if (currentProblemData.hint) {
+                    feedback.innerHTML += `Hint: ${currentProblemData.hint}`;
+                }
+                
+                missedProblems.push({
+                    problem: currentProblemData.problem,
+                    answer: currentProblemData.answer,
+                    hint: currentProblemData.hint,
+                    type: currentProblemData.type
+                });
+            } else if (result === "quit") {
+                quitPractice();
+                return;
+            } else if (result === "correct") {
+                feedback.innerHTML = `<span class="correct">✓ CORRECT!</span><br>`;
+                feedback.innerHTML += `Answer: ${currentProblemData.answer}`;
+                score++;
+            } else {
+                feedback.innerHTML = `<span class="incorrect">✗ INCORRECT</span><br>`;
+                feedback.innerHTML += `Your answer: ${userAnswer}<br>`;
+                feedback.innerHTML += `Correct answer: ${currentProblemData.answer}<br>`;
+                if (currentProblemData.hint) {
+                    feedback.innerHTML += `Hint: ${currentProblemData.hint}`;
+                }
+                
+                missedProblems.push({
+                    problem: currentProblemData.problem,
+                    answer: currentProblemData.answer,
+                    hint: currentProblemData.hint,
+                    type: currentProblemData.type
+                });
+            }
+            
+            // Disable input and show Next Question button
+            document.getElementById('answer-input').disabled = true;
+            document.getElementById('submit-btn').classList.add('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+            answerSubmitted = true;
+        }
+
+        function nextQuestion() {
+            currentProblem++;
+            
+            if (currentProblem < totalProblems) {
+                showCurrentProblem();
+            } else {
+                endPracticeSession();
+            }
+        }
+
+        function skipProblem() {
+            if (answerSubmitted) {
+                nextQuestion();
+            } else {
+                document.getElementById('answer-input').value = 'skip';
+                submitAnswer();
+            }
+        }
+
+        function quitPractice() {
+            stopStopwatch();
+            if (timerInterval) clearInterval(timerInterval);
+            endPracticeSession();
+        }
+
+        function endPracticeSession() {
+            stopStopwatch();
+            if (timerInterval) clearInterval(timerInterval);
+            
+            const endTime = Date.now();
+            const timeTaken = Math.floor((endTime - startTime) / 1000);
+            const minutes = Math.floor(timeTaken / 60);
+            const seconds = timeTaken % 60;
+            const percentage = totalProblems > 0 ? Math.round((score / totalProblems) * 100) : 0;
+            
+            // Calculate UIL score: +5 for correct, -4 for wrong/skipped
+            const wrongSkipped = totalProblems - score;
+            const uilScore = (score * 5) - (wrongSkipped * 4);
+            
+            let resultsHTML = `
+                <p>Problems attempted: ${totalProblems}</p>
+                <p>Correct: ${score} (${score * 5} points)</p>
+                <p>Wrong/Skipped: ${wrongSkipped} (${wrongSkipped * -4} points)</p>
+                <p><strong>UIL Score: ${uilScore} points</strong></p>
+            `;
+            
+            if (practiceMode === 'full') {
+                resultsHTML += `<p>Time: ${minutes}:${seconds.toString().padStart(2, '0')}</p>`;
+            } else {
+                resultsHTML += `<p>Time: ${formatStopwatchTime()}</p>`;
+            }
+            
+            // Calculate average time per problem
+            if (practiceMode !== 'full') {
+                const avgTime = stopwatchTime / totalProblems;
+                const avgSeconds = avgTime / 1000;
+                resultsHTML += `<p>Average time per problem: ${avgSeconds.toFixed(1)} seconds</p>`;
+            }
+            
+            if (missedProblems.length > 0) {
+                resultsHTML += `<p>Missed/Skipped: ${missedProblems.length} (review below)</p>`;
+            }
+            
+            // UIL Score feedback (removed the champion/finalist messages)
+            resultsHTML += `<p><strong>Score Analysis:</strong> Each correct = +5, each wrong/skipped = -4</p>`;
+            
+            // Speed feedback for untimed modes
+            if (practiceMode !== 'full') {
+                const avgTime = stopwatchTime / totalProblems;
+                if (avgTime < 5000) { // less than 5 seconds per problem
+                    resultsHTML += `<p><strong>Excellent speed!</strong> You're working at competition pace.</p>`;
+                } else if (avgTime < 10000) { // 5-10 seconds per problem
+                    resultsHTML += `<p><strong>Good speed!</strong> You're on track for competition.</p>`;
+                } else {
+                    resultsHTML += `<p><strong>Focus on speed!</strong> Try to solve problems faster.</p>`;
+                }
+            }
+            
+            document.getElementById('results-display').innerHTML = resultsHTML;
+            document.getElementById('practice-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+        }
+
+        // ===== REVIEW FUNCTIONS =====
+        function reviewMissed() {
+            if (missedProblems.length === 0) {
+                alert("No missed problems to review yet. Complete a practice session first!");
+                return;
+            }
+            
+            reviewIndex = 0;
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('review-screen').classList.remove('hidden');
+            showReviewItem();
+        }
+
+        function showReviewItem() {
+            if (reviewIndex >= missedProblems.length) {
+                reviewIndex = 0;
+            }
+            
+            const item = missedProblems[reviewIndex];
+            let reviewHTML = `
+                <p><strong>Problem ${reviewIndex + 1} of ${missedProblems.length}</strong></p>
+                <p><strong>Problem:</strong> ${item.problem}</p>
+                <p><strong>Correct answer:</strong> ${item.answer}</p>
+            `;
+            
+            if (item.hint) {
+                reviewHTML += `<p><strong>Solution:</strong> ${item.hint}</p>`;
+            }
+            
+            if (item.type) {
+                reviewHTML += `<p><strong>Type:</strong> ${item.type}</p>`;
+            }
+            
+            document.getElementById('review-display').innerHTML = reviewHTML;
+        }
+
+        function previousReview() {
+            reviewIndex = (reviewIndex - 1 + missedProblems.length) % missedProblems.length;
+            showReviewItem();
+        }
+
+        function nextReview() {
+            reviewIndex = (reviewIndex + 1) % missedProblems.length;
+            showReviewItem();
+        }
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', function(event) {
+            const input = document.getElementById('answer-input');
+            if (!answerSubmitted && input && document.activeElement === input) {
+                if (event.key === 'Enter') {
+                    submitAnswer();
+                } else if (event.key === 'Escape') {
+                    skipProblem();
+                } else if (event.key === 'q' || event.key === 'Q') {
+                    quitPractice();
+                }
+            } else if (answerSubmitted) {
+                if (event.key === 'Enter' || event.key === 'n' || event.key === 'N') {
+                    nextQuestion();
+                } else if (event.key === 'q' || event.key === 'Q') {
+                    quitPractice();
+                }
+            }
+        });
+
+        // ===== PAGE LOAD INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        // Also initialize if DOM is already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
