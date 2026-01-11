@@ -338,7 +338,7 @@
             <div id="review-display" class="results"></div>
             <div class="controls">
                 <button onclick="previousReview()">Previous</button>
-                <button onclick="nextReview()">Next</button>
+                    <button onclick="nextReview()">Next</button>
                 <button onclick="showMainMenu()">Back to Main Menu</button>
             </div>
         </div>
@@ -370,6 +370,12 @@
                 <br>
                 <h3>For Estimation Problems (*):</h3>
                 <p>Answers within 5% of exact answer are scored correct</p>
+                <br>
+                <h3>Scoring System:</h3>
+                <p>• Correct answer: +5 points</p>
+                <p>• Wrong answer: -4 points</p>
+                <p>• Skipped problem: -4 points</p>
+                <p>• Blank answer: -4 points</p>
             </div>
             <button onclick="showMainMenu()">Back to Main Menu</button>
         </div>
@@ -735,10 +741,11 @@
         function generatePercentOfNumber() {
             const percent = randomChoice([25, 33, 50, 66, 75, 20, 40, 60, 80]);
             const number = randomInt(50, 200);
-            const answer = Math.round(number * percent / 100);
+            // FIXED: Use exact calculation instead of rounding
+            const answer = (number * percent / 100).toString();
             return {
                 problem: `${percent}% of ${number} = `,
-                answer: answer.toString(),
+                answer: answer,
                 type: "Percentages",
                 hint: `${percent}% = ${percent/100}, so ${number} × ${percent/100} = ${answer}`
             };
@@ -1232,42 +1239,37 @@
             const seconds = timeTaken % 60;
             const percentage = totalProblems > 0 ? Math.round((score / totalProblems) * 100) : 0;
             
+            // Calculate UIL score: +5 for correct, -4 for wrong/skipped
+            const wrongSkipped = totalProblems - score;
+            const uilScore = (score * 5) - (wrongSkipped * 4);
+            
             let resultsHTML = `
-                <p>Problems attempted: ${totalProblems}</p>
-                <p>Correct: ${score}</p>
-                <p>Score: ${score}/${totalProblems}</p>
-                <p>Percentage: ${percentage}%</p>
+                <h3>Practice Results</h3>
+                <p><strong>Problems attempted:</strong> ${totalProblems}</p>
+                <p><strong>Correct answers:</strong> ${score} (+${score * 5} points)</p>
+                <p><strong>Wrong/Skipped answers:</strong> ${wrongSkipped} (-${wrongSkipped * 4} points)</p>
+                <p><strong>UIL Score:</strong> ${uilScore} points</p>
             `;
             
             if (practiceMode === 'full') {
-                resultsHTML += `<p>Time: ${minutes}:${seconds.toString().padStart(2, '0')}</p>`;
+                resultsHTML += `<p><strong>Time:</strong> ${minutes}:${seconds.toString().padStart(2, '0')}</p>`;
             } else {
-                resultsHTML += `<p>Time: ${formatStopwatchTime()}</p>`;
+                resultsHTML += `<p><strong>Time:</strong> ${formatStopwatchTime()}</p>`;
             }
             
             // Calculate average time per problem
             if (practiceMode !== 'full') {
                 const avgTime = stopwatchTime / totalProblems;
                 const avgSeconds = avgTime / 1000;
-                resultsHTML += `<p>Average time per problem: ${avgSeconds.toFixed(1)} seconds</p>`;
+                resultsHTML += `<p><strong>Average time per problem:</strong> ${avgSeconds.toFixed(1)} seconds</p>`;
             }
             
             if (missedProblems.length > 0) {
-                resultsHTML += `<p>Missed/Skipped: ${missedProblems.length} (review below)</p>`;
+                resultsHTML += `<p><strong>Missed/Skipped problems:</strong> ${missedProblems.length} (available for review)</p>`;
             }
             
-            // Performance feedback
-            if (percentage >= 90) {
-                resultsHTML += `<p><strong>Excellent! National champion level!</strong></p>`;
-            } else if (percentage >= 80) {
-                resultsHTML += `<p><strong>Great job! Regional finalist level!</strong></p>`;
-            } else if (percentage >= 70) {
-                resultsHTML += `<p><strong>Good work! Keep practicing!</strong></p>`;
-            } else if (percentage >= 60) {
-                resultsHTML += `<p><strong>Not bad, but needs more practice.</strong></p>`;
-            } else {
-                resultsHTML += `<p><strong>Keep working - focus on fundamentals.</strong></p>`;
-            }
+            // UIL Score feedback
+            resultsHTML += `<p><strong>Scoring System:</strong> Each correct = +5, each wrong/skipped = -4</p>`;
             
             // Speed feedback for untimed modes
             if (practiceMode !== 'full') {
