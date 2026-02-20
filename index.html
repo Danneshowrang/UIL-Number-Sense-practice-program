@@ -5,265 +5,431 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Number Sense Practice</title>
     <style>
+        :root {
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-light: #eff6ff;
+            --accent-border: #bfdbfe;
+            --correct: #16a34a;
+            --correct-bg: #f0fdf4;
+            --correct-border: #86efac;
+            --incorrect: #dc2626;
+            --incorrect-bg: #fef2f2;
+            --incorrect-border: #fca5a5;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         }
-        
+
         body {
-            background-color: #f5f5f5;
-            color: #333;
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
-            max-width: 1200px;
+            max-width: 960px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .container {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 2px;
-            padding: 30px;
-            margin: 20px 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 32px;
+            margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
-        
-        h1, h2, h3 {
-            font-weight: normal;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        
-        h1 {
+
+        .app-header {
             text-align: center;
-            font-size: 28px;
-            color: #222;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid var(--accent);
         }
-        
+
+        h1 {
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        h3 {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 14px 0 6px 0;
+            color: var(--text);
+        }
+
         .menu {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 30px 0;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
         }
-        
+
         .menu-item {
-            background: #f8f8f8;
-            border: 1px solid #ddd;
-            padding: 20px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            padding: 16px 12px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
             user-select: none;
         }
-        
+
         .menu-item:hover {
-            background: #f0f0f0;
-            border-color: #ccc;
+            border-color: var(--accent);
+            background: var(--accent-light);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
         }
-        
+
         .menu-item:active {
-            background: #e8e8e8;
             transform: translateY(1px);
+            box-shadow: none;
         }
-        
+
         .menu-item.disabled {
             opacity: 0.5;
             cursor: not-allowed;
             pointer-events: none;
         }
-        
-        .problem-display {
-            background: #fafafa;
-            border: 1px solid #ddd;
-            padding: 30px;
-            margin: 20px 0;
-            min-height: 150px;
+
+        .menu-icon {
             font-size: 20px;
+            display: block;
+            margin-bottom: 6px;
         }
-        
-        .input-area {
-            margin: 20px 0;
-        }
-        
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            font-size: 18px;
-            border: 1px solid #ddd;
-            margin: 10px 0;
-        }
-        
-        button {
-            background: #333;
-            color: white;
+
+        .menu-item h3 {
+            font-size: 13px;
+            font-weight: bold;
+            margin: 0 0 3px 0;
+            color: var(--text);
             border: none;
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 0;
+        }
+
+        .menu-item p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .problem-display {
+            background: var(--accent-light);
+            border: 1.5px solid var(--accent-border);
+            border-left: 4px solid var(--accent);
+            border-radius: 6px;
+            padding: 24px 20px;
+            margin: 10px 0;
+            min-height: 100px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-wrap {
+            margin: 4px 0 8px;
+        }
+
+        .progress-track {
+            background: var(--border);
+            border-radius: 99px;
+            height: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: var(--accent);
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .input-area {
+            margin: 12px 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 18px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            margin: 8px 0;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+
+        input[type="text"]:disabled {
+            background: var(--bg);
+            color: var(--text-muted);
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: 1.5px solid transparent;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: bold;
             cursor: pointer;
-            margin: 5px;
-            transition: background 0.2s;
+            margin: 4px;
+            border-radius: 5px;
+            transition: background 0.15s, transform 0.1s;
         }
-        
+
         button:hover {
-            background: #555;
+            background: var(--accent-hover);
         }
-        
+
+        button:active {
+            transform: translateY(1px);
+        }
+
         button:disabled {
-            background: #aaa;
+            background: #cbd5e1;
             cursor: not-allowed;
+            transform: none;
         }
-        
+
+        button.btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        button.btn-secondary:hover {
+            background: var(--bg);
+            border-color: #cbd5e1;
+        }
+
+        button.btn-danger {
+            background: var(--surface);
+            color: var(--incorrect);
+            border-color: var(--incorrect-border);
+        }
+
+        button.btn-danger:hover {
+            background: var(--incorrect-bg);
+        }
+
         .results {
-            background: #f8f8f8;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin: 20px 0;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 18px;
+            margin: 12px 0;
         }
-        
+
+        .results p {
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
         .timer-area {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 10px 0;
-            padding: 10px;
-            background: #f8f8f8;
-            border: 1px solid #ddd;
+            margin: 0 0 10px;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
         }
-        
+
         .timer {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: bold;
-            text-align: right;
+            color: var(--text);
         }
-        
+
         .stopwatch {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: bold;
-            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
+
         .feedback {
-            padding: 15px;
-            margin: 15px 0;
-            border-left: 4px solid #333;
-            background: #f9f9f9;
-            min-height: 80px;
+            padding: 14px 16px;
+            margin: 10px 0;
+            border-radius: 6px;
+            min-height: 60px;
+            font-size: 13px;
+            line-height: 1.7;
+            border: 1.5px solid var(--border);
+            background: var(--bg);
         }
-        
-        .correct { color: #2e7d32; }
-        .incorrect { color: #c62828; }
-        .skipped { color: #666; }
-        
-        .hidden {
-            display: none;
+
+        .feedback.feedback-correct {
+            background: var(--correct-bg);
+            border-color: var(--correct-border);
         }
-        
+
+        .feedback.feedback-incorrect {
+            background: var(--incorrect-bg);
+            border-color: var(--incorrect-border);
+        }
+
+        .correct { color: var(--correct); font-weight: bold; }
+        .incorrect { color: var(--incorrect); font-weight: bold; }
+        .skipped { color: var(--text-muted); font-weight: bold; }
+
+        .hidden { display: none; }
+
         .controls {
             display: flex;
-            justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
+            gap: 6px;
+            margin: 12px 0;
         }
-        
+
         .problem-counter {
-            font-size: 16px;
-            color: #666;
-            margin: 10px 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 8px 0 2px;
         }
-        
+
         .answer-submitted {
             pointer-events: none;
             opacity: 0.7;
         }
-        
+
         .stopwatch-controls {
             display: flex;
-            gap: 5px;
-            margin-left: 10px;
+            gap: 4px;
         }
-        
+
         .stopwatch-controls button {
-            padding: 4px 8px;
+            padding: 3px 8px;
             font-size: 12px;
-            background: #666;
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+            font-weight: normal;
+            margin: 0;
+            border-radius: 4px;
         }
-        
+
         .stopwatch-controls button:hover {
-            background: #888;
+            background: var(--bg);
         }
-        
+
         @media (max-width: 768px) {
+            body { padding: 10px; }
+
             .container {
-                padding: 15px;
+                padding: 16px;
+                border-radius: 6px;
             }
-            
+
             .menu {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
-            
+
             .problem-display {
                 font-size: 18px;
-                padding: 20px;
+                padding: 18px 14px;
             }
-            
-            button {
-                width: 100%;
-                margin: 5px 0;
-            }
-            
+
             .timer-area {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
                 text-align: center;
             }
-            
+
             .stopwatch-controls {
-                margin-left: 0;
                 justify-content: center;
+            }
+
+            button {
+                padding: 9px 14px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Number Sense Practice</h1>
-        
+        <div class="app-header">
+            <h1>Number Sense Practice</h1>
+            <div class="subtitle">UIL Competition Training &mdash; Mental Math</div>
+        </div>
+
         <div id="main-menu">
             <div class="menu">
                 <div class="menu-item" data-action="quick-practice">
+                    <span class="menu-icon">&#9889;</span>
                     <h3>Quick Practice</h3>
                     <p>10 problems with stopwatch</p>
                 </div>
                 <div class="menu-item" data-action="full-test">
+                    <span class="menu-icon">&#128203;</span>
                     <h3>Full Test</h3>
                     <p>80 problems, 10 minute timer</p>
                 </div>
                 <div class="menu-item" data-action="weak-areas">
+                    <span class="menu-icon">&#127919;</span>
                     <h3>Focus on Weak Areas</h3>
                     <p>Target specific topics</p>
                 </div>
                 <div class="menu-item" data-action="problem-number">
-                    <h3>Study by Problem Number</h3>
+                    <span class="menu-icon">&#128202;</span>
+                    <h3>Study by Problem #</h3>
                     <p>Practice in test order</p>
                 </div>
                 <div class="menu-item" data-action="estimation">
+                    <span class="menu-icon">&#8776;</span>
                     <h3>Estimation Practice</h3>
                     <p>Starred (*) problems</p>
                 </div>
                 <div class="menu-item" data-action="review">
-                    <h3>Review Missed Problems</h3>
+                    <span class="menu-icon">&#128214;</span>
+                    <h3>Review Missed</h3>
                     <p>Learn from mistakes</p>
                 </div>
                 <div class="menu-item" data-action="problem-types">
-                    <h3>Show All Problem Types</h3>
+                    <span class="menu-icon">&#128218;</span>
+                    <h3>All Problem Types</h3>
                     <p>See what's covered</p>
                 </div>
                 <div class="menu-item" data-action="instructions">
+                    <span class="menu-icon">&#8505;</span>
                     <h3>Instructions</h3>
                     <p>How to use</p>
                 </div>
@@ -309,6 +475,11 @@
             </div>
             
             <div class="problem-counter" id="problem-counter">Problem 1 of 10</div>
+            <div class="progress-wrap">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-bar"></div>
+                </div>
+            </div>
             <div class="problem-display" id="problem-display"></div>
             
             <div class="input-area">
@@ -316,8 +487,8 @@
                 <div class="controls">
                     <button id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
                     <button id="next-btn" onclick="nextQuestion()" class="hidden">Next Question</button>
-                    <button onclick="skipProblem()">Skip Problem</button>
-                    <button onclick="quitPractice()">Quit Practice</button>
+                    <button class="btn-secondary" onclick="skipProblem()">Skip Problem</button>
+                    <button class="btn-danger" onclick="quitPractice()">Quit Practice</button>
                 </div>
             </div>
             
@@ -329,7 +500,7 @@
             <div id="results-display" class="results"></div>
             <div class="controls">
                 <button onclick="reviewMissed()">Review Missed Problems</button>
-                <button onclick="showMainMenu()">Back to Main Menu</button>
+                <button class="btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>
             </div>
         </div>
         
@@ -337,9 +508,9 @@
             <h2>Review Missed Problems</h2>
             <div id="review-display" class="results"></div>
             <div class="controls">
-                <button onclick="previousReview()">Previous</button>
-                    <button onclick="nextReview()">Next</button>
-                <button onclick="showMainMenu()">Back to Main Menu</button>
+                <button class="btn-secondary" onclick="previousReview()">&#8592; Previous</button>
+                <button class="btn-secondary" onclick="nextReview()">Next &#8594;</button>
+                <button class="btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>
             </div>
         </div>
         
@@ -377,9 +548,9 @@
                 <p>• Skipped problem: -4 points</p>
                 <p>• Blank answer: -4 points</p>
             </div>
-            <button onclick="showMainMenu()">Back to Main Menu</button>
+            <button class="btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>
         </div>
-        
+
         <div id="problem-types" class="hidden">
             <h2>All Problem Types</h2>
             <div class="results">
@@ -391,26 +562,34 @@
                 <p>• Fraction ↔ Decimal conversions</p>
                 <p>• Percent ↔ Fraction conversions</p>
                 <p>• Squares (11² to 25²)</p>
+                <p>• Perfect cubes (2³ to 12³)</p>
                 <p>• Order of operations</p>
                 <p>• Roman numerals</p>
-                
+
                 <h3>Tier 2 - Patterns & Tricks:</h3>
                 <p>• Multiplication by 11 trick</p>
+                <p>• Multiplication by 25 (×100÷4)</p>
+                <p>• Multiplication by 99 (×100−n)</p>
+                <p>• Difference of squares (e.g. 47×53)</p>
                 <p>• Remainders (divisibility rules)</p>
-                <p>• Averages (mean)</p>
+                <p>• Averages (mean) and Median</p>
                 <p>• Percent of a number</p>
                 <p>• Unit conversions (inches/feet/yards)</p>
-                
-                <h3>Tier 3 - Algebra & Geometry:</h3>
+                <p>• LCM of two numbers</p>
+                <p>• Sum of series (1+2+...+n)</p>
+
+                <h3>Tier 3 - Algebra & Sequences:</h3>
                 <p>• Solve for x (linear equations)</p>
                 <p>• Binomial squares (patterns)</p>
+                <p>• Arithmetic sequences (find next term)</p>
+                <p>• Geometric sequences (find next term)</p>
                 <p>• Pythagorean triples</p>
-                
+
                 <h3>Tier 4 - Estimation (* problems):</h3>
                 <p>• Square root approximation</p>
                 <p>• Large addition chains</p>
             </div>
-            <button onclick="showMainMenu()">Back to Main Menu</button>
+            <button class="btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>
         </div>
     </div>
 
@@ -905,6 +1084,124 @@
             };
         }
 
+        function generateMultiplyBy25() {
+            const n = randomInt(12, 60);
+            const answer = n * 25;
+            return {
+                problem: `${n} × 25 = `,
+                answer: answer.toString(),
+                type: "Multiplication Trick (×25)",
+                hint: `${n} × 25 = ${n} × 100 ÷ 4 = ${n * 100} ÷ 4 = ${answer}`
+            };
+        }
+
+        function generateMultiplyBy99() {
+            const n = randomInt(12, 50);
+            const answer = n * 99;
+            return {
+                problem: `${n} × 99 = `,
+                answer: answer.toString(),
+                type: "Multiplication Trick (×99)",
+                hint: `${n} × 99 = ${n} × 100 − ${n} = ${n * 100} − ${n} = ${answer}`
+            };
+        }
+
+        function generateCubes() {
+            const num = randomInt(2, 12);
+            const cube = num * num * num;
+            return {
+                problem: `${num}³ = `,
+                answer: cube.toString(),
+                type: "Perfect Cubes",
+                hint: `${num} × ${num} = ${num * num}, then × ${num} = ${cube}`
+            };
+        }
+
+        function generateArithmeticSequence() {
+            const start = randomInt(1, 20);
+            const step = randomInt(2, 15);
+            const shown = randomInt(4, 5);
+            const terms = [];
+            for (let i = 0; i < shown; i++) terms.push(start + i * step);
+            const next = start + shown * step;
+            return {
+                problem: `${terms.join(', ')}, ___ = ?`,
+                answer: next.toString(),
+                type: "Arithmetic Sequence",
+                hint: `Common difference = ${step}; next = ${terms[shown - 1]} + ${step} = ${next}`
+            };
+        }
+
+        function generateGeometricSequence() {
+            const ratio = randomChoice([2, 3]);
+            const start = randomChoice([1, 2, 3, 4]);
+            const shown = randomInt(3, 4);
+            const terms = [];
+            for (let i = 0; i < shown; i++) terms.push(start * Math.pow(ratio, i));
+            const next = start * Math.pow(ratio, shown);
+            return {
+                problem: `${terms.join(', ')}, ___ = ?`,
+                answer: next.toString(),
+                type: "Geometric Sequence",
+                hint: `Common ratio = ${ratio}; next = ${terms[shown - 1]} × ${ratio} = ${next}`
+            };
+        }
+
+        function generateLCM() {
+            const pairs = [
+                [4, 6, 12], [3, 8, 24], [4, 10, 20], [6, 9, 18], [5, 6, 30],
+                [4, 14, 28], [6, 8, 24], [9, 12, 36], [10, 15, 30], [6, 10, 30],
+                [5, 8, 40], [4, 9, 36], [3, 10, 30], [6, 14, 42], [8, 12, 24]
+            ];
+            const choice = randomChoice(pairs);
+            return {
+                problem: `LCM(${choice[0]}, ${choice[1]}) = `,
+                answer: choice[2].toString(),
+                type: "LCM",
+                hint: `LCM(${choice[0]}, ${choice[1]}) = ${choice[2]}`
+            };
+        }
+
+        function generateDifferenceOfSquares() {
+            // (a+b)(a-b) = a² - b²; pick numbers that differ by 2b
+            const a = randomInt(15, 50);
+            const b = randomInt(1, 5);
+            const x = a + b;
+            const y = a - b;
+            const answer = a * a - b * b;
+            return {
+                problem: `${x} × ${y} = `,
+                answer: answer.toString(),
+                type: "Difference of Squares",
+                hint: `(${a}+${b})(${a}−${b}) = ${a}² − ${b}² = ${a * a} − ${b * b} = ${answer}`
+            };
+        }
+
+        function generateSumOfSeries() {
+            const n = randomInt(8, 25);
+            const answer = n * (n + 1) / 2;
+            return {
+                problem: `1 + 2 + 3 + ... + ${n} = `,
+                answer: answer.toString(),
+                type: "Sum of Series",
+                hint: `n(n+1)/2 = ${n}×${n + 1}/2 = ${n * (n + 1)}/2 = ${answer}`
+            };
+        }
+
+        function generateMedian() {
+            const count = randomChoice([3, 5]);
+            const nums = [];
+            for (let i = 0; i < count; i++) nums.push(randomInt(10, 99));
+            const sorted = [...nums].sort((a, b) => a - b);
+            const median = sorted[Math.floor(count / 2)];
+            return {
+                problem: `Median of ${nums.join(', ')} = `,
+                answer: median.toString(),
+                type: "Median",
+                hint: `Sorted: ${sorted.join(', ')}; middle value = ${median}`
+            };
+        }
+
         // ===== UI MANAGEMENT FUNCTIONS =====
         function showMainMenu() {
             document.getElementById('main-menu').classList.remove('hidden');
@@ -943,9 +1240,12 @@
             const generators = [
                 generateAddition, generateSubtraction, generateMultiplication,
                 generateDivision, generateFractionToDecimal, generatePercentToFraction,
-                generateSquares, generateOrderOfOperations, generateRemainder,
-                generateMultiplicationBy11, generateAverage, generatePercentOfNumber,
-                generateUnitConversion, generateRomanNumerals, generateSolveForX
+                generateSquares, generateCubes, generateOrderOfOperations, generateRemainder,
+                generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
+                generateAverage, generateMedian, generatePercentOfNumber,
+                generateUnitConversion, generateRomanNumerals, generateSolveForX,
+                generateArithmeticSequence, generateLCM, generateDifferenceOfSquares,
+                generateSumOfSeries
             ];
             
             problems = [];
@@ -965,11 +1265,13 @@
             const allGenerators = [
                 generateAddition, generateSubtraction, generateMultiplication,
                 generateDivision, generateFractionToDecimal, generatePercentToFraction,
-                generateSquares, generateOrderOfOperations, generateRemainder,
-                generateMultiplicationBy11, generateAverage, generatePercentOfNumber,
+                generateSquares, generateCubes, generateOrderOfOperations, generateRemainder,
+                generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
+                generateAverage, generateMedian, generatePercentOfNumber,
                 generateUnitConversion, generateRomanNumerals, generateSquareRootEstimation,
                 generateLargeAddition, generatePythagoreanTriple, generateSolveForX,
-                generateBinomialSquare
+                generateBinomialSquare, generateArithmeticSequence, generateGeometricSequence,
+                generateLCM, generateDifferenceOfSquares, generateSumOfSeries
             ];
             
             problems = [];
@@ -986,19 +1288,24 @@
             
             switch(area) {
                 case 1: // Arithmetic
-                    generators = [generateAddition, generateSubtraction, generateMultiplication, generateDivision];
+                    generators = [generateAddition, generateSubtraction, generateMultiplication,
+                                 generateDivision, generateMultiplyBy25, generateMultiplyBy99,
+                                 generateDifferenceOfSquares];
                     break;
                 case 2: // Fractions/Decimals/Percents
-                    generators = [generateFractionToDecimal, generatePercentToFraction, generatePercentOfNumber];
+                    generators = [generateFractionToDecimal, generatePercentToFraction,
+                                 generatePercentOfNumber];
                     break;
                 case 3: // Algebra
-                    generators = [generateSolveForX, generateBinomialSquare, generateOrderOfOperations];
+                    generators = [generateSolveForX, generateBinomialSquare, generateOrderOfOperations,
+                                 generateArithmeticSequence, generateGeometricSequence, generateSumOfSeries];
                     break;
                 case 4: // Geometry
                     generators = [generateUnitConversion, generatePythagoreanTriple];
                     break;
                 case 5: // Number Theory
-                    generators = [generateRemainder, generateSquares, generateRomanNumerals];
+                    generators = [generateRemainder, generateSquares, generateCubes,
+                                 generateRomanNumerals, generateLCM, generateSumOfSeries];
                     break;
                 case 6: // Estimation
                     generators = [generateSquareRootEstimation, generateLargeAddition];
@@ -1006,21 +1313,25 @@
                 case 7: // Problems 1-10
                     generators = [generateAddition, generateSubtraction, generateMultiplication,
                                  generateDivision, generateFractionToDecimal, generateOrderOfOperations,
-                                 generateRomanNumerals, generateSquares];
+                                 generateRomanNumerals, generateSquares, generateCubes];
                     break;
                 case 8: // Problems 11-20
-                    generators = [generateMultiplicationBy11, generateAverage, generatePercentOfNumber,
-                                 generateRemainder, generateUnitConversion, generateFractionToDecimal];
+                    generators = [generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
+                                 generateAverage, generateMedian, generatePercentOfNumber,
+                                 generateRemainder, generateUnitConversion, generateLCM];
                     break;
                 case 9: // Problems 21-30
                     generators = [generateRomanNumerals, generateSolveForX, generateFractionToDecimal,
-                                 generatePercentToFraction];
+                                 generatePercentToFraction, generateArithmeticSequence,
+                                 generateGeometricSequence, generateSumOfSeries];
                     break;
                 case 10: // Problems 31-40
-                    generators = [generateBinomialSquare, generateUnitConversion, generatePythagoreanTriple];
+                    generators = [generateBinomialSquare, generateUnitConversion, generatePythagoreanTriple,
+                                 generateDifferenceOfSquares];
                     break;
                 case 11: // Problems 41-50
-                    generators = [generateSquareRootEstimation, generateLargeAddition, generateSolveForX];
+                    generators = [generateSquareRootEstimation, generateLargeAddition, generateSolveForX,
+                                 generateArithmeticSequence];
                     break;
             }
             
@@ -1089,13 +1400,19 @@
         function showCurrentProblem() {
             currentProblemData = problems[currentProblem];
             document.getElementById('problem-display').textContent = currentProblemData.problem;
-            document.getElementById('problem-counter').textContent = 
+            document.getElementById('problem-counter').textContent =
                 `Problem ${currentProblem + 1} of ${totalProblems}`;
+            // Update progress bar
+            const pct = Math.round((currentProblem / totalProblems) * 100);
+            const pb = document.getElementById('progress-bar');
+            if (pb) pb.style.width = pct + '%';
             document.getElementById('answer-input').value = '';
             document.getElementById('answer-input').disabled = false;
             document.getElementById('submit-btn').classList.remove('hidden');
             document.getElementById('next-btn').classList.add('hidden');
-            document.getElementById('feedback').classList.add('hidden');
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('hidden');
+            feedback.classList.remove('feedback-correct', 'feedback-incorrect');
             answerSubmitted = false;
             document.getElementById('answer-input').focus();
         }
@@ -1159,8 +1476,8 @@
             const result = checkAnswer(userAnswer, currentProblemData.answer, currentProblemData.type);
             
             const feedback = document.getElementById('feedback');
-            feedback.classList.remove('hidden');
-            
+            feedback.classList.remove('hidden', 'feedback-correct', 'feedback-incorrect');
+
             if (result === "skip") {
                 feedback.innerHTML = `<span class="skipped">↷ SKIPPED</span><br>`;
                 feedback.innerHTML += `Correct answer: ${currentProblemData.answer}<br>`;
@@ -1178,11 +1495,13 @@
                 quitPractice();
                 return;
             } else if (result === "correct") {
-                feedback.innerHTML = `<span class="correct">✓ CORRECT!</span><br>`;
+                feedback.classList.add('feedback-correct');
+                feedback.innerHTML = `<span class="correct">&#10003; CORRECT!</span><br>`;
                 feedback.innerHTML += `Answer: ${currentProblemData.answer}`;
                 score++;
             } else {
-                feedback.innerHTML = `<span class="incorrect">✗ INCORRECT</span><br>`;
+                feedback.classList.add('feedback-incorrect');
+                feedback.innerHTML = `<span class="incorrect">&#10007; INCORRECT</span><br>`;
                 feedback.innerHTML += `Your answer: ${userAnswer}<br>`;
                 feedback.innerHTML += `Correct answer: ${currentProblemData.answer}<br>`;
                 if (currentProblemData.hint) {
