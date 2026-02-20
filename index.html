@@ -452,11 +452,11 @@
         <div id="problem-number-menu" class="hidden">
             <h2>Study by Problem Number</h2>
             <div class="menu">
-                <div class="menu-item" data-action="practice" data-area="7">Problems 1-10 (Basic arithmetic)</div>
-                <div class="menu-item" data-action="practice" data-area="8">Problems 11-20 (Multiplication tricks, %)</div>
-                <div class="menu-item" data-action="practice" data-area="9">Problems 21-30 (Fractions, sequences)</div>
-                <div class="menu-item" data-action="practice" data-area="10">Problems 31-40 (Algebra, geometry)</div>
-                <div class="menu-item" data-action="practice" data-area="11">Problems 41-50 (Equations, estimation)</div>
+                <div class="menu-item" data-action="practice" data-area="7">Problems 1-10<p>Arithmetic, GCD/LCM, fractions, roman numerals</p></div>
+                <div class="menu-item" data-action="practice" data-area="8">Problems 11-20<p>Multiplication, mode, squares, percent, remainder</p></div>
+                <div class="menu-item" data-action="practice" data-area="9">Problems 21-30<p>Cubes, mean, repeating decimals, sequences, percent ></p></div>
+                <div class="menu-item" data-action="practice" data-area="10">Problems 31-40<p>Squares, equations, Fibonacci, diff. of squares</p></div>
+                <div class="menu-item" data-action="practice" data-area="11">Problems 41-50<p>Special multiplication, cubes, exponents, algebra</p></div>
                 <div class="menu-item" data-action="back">Back to Main Menu</div>
             </div>
         </div>
@@ -560,22 +560,26 @@
                 <p>• Multiplication (2-digit × 2-digit)</p>
                 <p>• Division (even division)</p>
                 <p>• Fraction ↔ Decimal conversions</p>
+                <p>• Repeating decimal → fraction (0.4166... = 5/12)</p>
                 <p>• Percent ↔ Fraction conversions</p>
                 <p>• Squares (11² to 25²)</p>
                 <p>• Perfect cubes (2³ to 12³)</p>
                 <p>• Order of operations</p>
                 <p>• Roman numerals</p>
+                <p>• GCD of two numbers</p>
+                <p>• LCM of two numbers</p>
 
                 <h3>Tier 2 - Patterns & Tricks:</h3>
                 <p>• Multiplication by 11 trick</p>
                 <p>• Multiplication by 25 (×100÷4)</p>
                 <p>• Multiplication by 99 (×100−n)</p>
+                <p>• Multiplication by 101 (×100+n)</p>
                 <p>• Difference of squares (e.g. 47×53)</p>
                 <p>• Remainders (divisibility rules)</p>
-                <p>• Averages (mean) and Median</p>
+                <p>• Mean (average), Median, Mode</p>
+                <p>• "X is what % of Y?" and "X is what % greater than Y?"</p>
                 <p>• Percent of a number</p>
-                <p>• Unit conversions (inches/feet/yards)</p>
-                <p>• LCM of two numbers</p>
+                <p>• Unit conversions (inches/feet/yards/cups)</p>
                 <p>• Sum of series (1+2+...+n)</p>
 
                 <h3>Tier 3 - Algebra & Sequences:</h3>
@@ -583,6 +587,7 @@
                 <p>• Binomial squares (patterns)</p>
                 <p>• Arithmetic sequences (find next term)</p>
                 <p>• Geometric sequences (find next term)</p>
+                <p>• Fibonacci-type sequences (each term = sum of previous two)</p>
                 <p>• Pythagorean triples</p>
 
                 <h3>Tier 4 - Estimation (* problems):</h3>
@@ -1195,10 +1200,133 @@
             const sorted = [...nums].sort((a, b) => a - b);
             const median = sorted[Math.floor(count / 2)];
             return {
-                problem: `Median of ${nums.join(', ')} = `,
+                problem: `Median of {${nums.join(', ')}} = `,
                 answer: median.toString(),
                 type: "Median",
                 hint: `Sorted: ${sorted.join(', ')}; middle value = ${median}`
+            };
+        }
+
+        // --- Generators added from real UIL test analysis ---
+
+        function generateGCD() {
+            const pairs = [
+                [12, 18, 6], [15, 25, 5], [24, 36, 12], [16, 24, 8], [21, 14, 7],
+                [56, 84, 28], [18, 63, 9], [48, 72, 24], [35, 49, 7], [32, 48, 16],
+                [30, 45, 15], [20, 28, 4], [36, 60, 12], [42, 70, 14], [54, 36, 18],
+                [16, 40, 8], [24, 64, 8], [28, 42, 14], [60, 80, 20], [45, 75, 15]
+            ];
+            const choice = randomChoice(pairs);
+            return {
+                problem: `The GCD of ${choice[0]} and ${choice[1]} is `,
+                answer: choice[2].toString(),
+                type: "GCD",
+                hint: `GCD(${choice[0]}, ${choice[1]}) = ${choice[2]}`
+            };
+        }
+
+        function generateMode() {
+            const mode = randomInt(1, 9);
+            const count = randomInt(3, 4); // mode appears this many times
+            const nums = [];
+            for (let i = 0; i < count; i++) nums.push(mode);
+            const total = randomInt(7, 10);
+            while (nums.length < total) {
+                const n = randomInt(1, 9);
+                if (n !== mode) nums.push(n);
+            }
+            for (let i = nums.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [nums[i], nums[j]] = [nums[j], nums[i]];
+            }
+            return {
+                problem: `The mode of {${nums.join(', ')}} is `,
+                answer: mode.toString(),
+                type: "Mode",
+                hint: `${mode} appears ${count} times — more than any other value`
+            };
+        }
+
+        function generateRepeatingDecimal() {
+            const conversions = [
+                ["0.3333...", "1/3",   "10x - x = 9x = 3, x = 1/3"],
+                ["0.6666...", "2/3",   "10x - x = 9x = 6, x = 2/3"],
+                ["0.1666...", "1/6",   "0.1666... = 1/6"],
+                ["0.4166...", "5/12",  "0.4166... = 5/12"],
+                ["0.4777...", "43/90", "10x = 4.777..., 100x = 47.777...; 90x = 43"],
+                ["0.2555...", "23/90", "100x - 10x = 90x = 23, x = 23/90"],
+                ["0.1222...", "11/90", "90x = 11, x = 11/90"],
+                ["0.8333...", "5/6",   "10x - x = 9x = 7.5, x = 5/6"],
+                ["0.1111...", "1/9",   "9x = 1, x = 1/9"],
+                ["0.2222...", "2/9",   "9x = 2, x = 2/9"],
+                ["0.5555...", "5/9",   "9x = 5, x = 5/9"],
+                ["0.0833...", "1/12",  "0.0833... = 1/12"]
+            ];
+            const choice = randomChoice(conversions);
+            return {
+                problem: `${choice[0]} = ______ (fraction)`,
+                answer: choice[1],
+                type: "Repeating Decimal",
+                hint: choice[2]
+            };
+        }
+
+        function generateXIsWhatPercentOfY() {
+            const problems = [
+                [17, 85, 20], [15, 60, 25], [12, 48, 25], [18, 72, 25],
+                [30, 120, 25], [16, 80, 20], [14, 70, 20], [24, 80, 30],
+                [21, 70, 30], [36, 90, 40], [15, 75, 20], [18, 90, 20],
+                [32, 160, 20], [25, 125, 20], [45, 180, 25], [40, 200, 20]
+            ];
+            const choice = randomChoice(problems);
+            return {
+                problem: `${choice[0]} is what % of ${choice[1]}? `,
+                answer: choice[2].toString(),
+                type: "Percent (X is what % of Y)",
+                hint: `${choice[0]} ÷ ${choice[1]} × 100 = ${choice[2]}%`
+            };
+        }
+
+        function generatePercentGreaterThan() {
+            const cases = [
+                [50, 40, "greater", 25], [60, 50, "greater", 20],
+                [120, 100, "greater", 20], [110, 100, "greater", 10],
+                [150, 100, "greater", 50], [24, 20, "greater", 20],
+                [48, 40, "greater", 20], [75, 60, "greater", 25],
+                [30, 24, "greater", 25], [35, 28, "greater", 25],
+                [45, 36, "greater", 25], [84, 70, "greater", 20]
+            ];
+            const choice = randomChoice(cases);
+            return {
+                problem: `${choice[0]} is what % ${choice[2]} than ${choice[1]}? `,
+                answer: choice[3].toString(),
+                type: "Percent Greater/Less Than",
+                hint: `(${choice[0]} − ${choice[1]}) ÷ ${choice[1]} × 100 = ${choice[3]}%`
+            };
+        }
+
+        function generateFibonacciLike() {
+            const a = randomInt(1, 5);
+            const b = randomInt(2, 8);
+            const terms = [a, b];
+            for (let i = 2; i < 7; i++) terms.push(terms[i-1] + terms[i-2]);
+            const shown = 5;
+            return {
+                problem: `${terms.slice(0, shown).join(', ')}, ___ = ?`,
+                answer: terms[shown].toString(),
+                type: "Fibonacci Sequence",
+                hint: `Each term = sum of two previous: ${terms[shown-1]} + ${terms[shown-2]} = ${terms[shown]}`
+            };
+        }
+
+        function generateMultiplyBy101() {
+            const n = randomInt(10, 99);
+            const answer = n * 101;
+            return {
+                problem: `${n} × 101 = `,
+                answer: answer.toString(),
+                type: "Multiplication Trick (×101)",
+                hint: `${n} × 101 = ${n} × 100 + ${n} = ${n*100} + ${n} = ${answer}`
             };
         }
 
@@ -1242,10 +1370,12 @@
                 generateDivision, generateFractionToDecimal, generatePercentToFraction,
                 generateSquares, generateCubes, generateOrderOfOperations, generateRemainder,
                 generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
-                generateAverage, generateMedian, generatePercentOfNumber,
+                generateMultiplyBy101, generateAverage, generateMedian, generateMode,
+                generatePercentOfNumber, generateXIsWhatPercentOfY, generatePercentGreaterThan,
                 generateUnitConversion, generateRomanNumerals, generateSolveForX,
-                generateArithmeticSequence, generateLCM, generateDifferenceOfSquares,
-                generateSumOfSeries
+                generateArithmeticSequence, generateGeometricSequence, generateFibonacciLike,
+                generateLCM, generateGCD, generateDifferenceOfSquares,
+                generateSumOfSeries, generateRepeatingDecimal
             ];
             
             problems = [];
@@ -1267,11 +1397,13 @@
                 generateDivision, generateFractionToDecimal, generatePercentToFraction,
                 generateSquares, generateCubes, generateOrderOfOperations, generateRemainder,
                 generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
-                generateAverage, generateMedian, generatePercentOfNumber,
+                generateMultiplyBy101, generateAverage, generateMedian, generateMode,
+                generatePercentOfNumber, generateXIsWhatPercentOfY, generatePercentGreaterThan,
                 generateUnitConversion, generateRomanNumerals, generateSquareRootEstimation,
                 generateLargeAddition, generatePythagoreanTriple, generateSolveForX,
                 generateBinomialSquare, generateArithmeticSequence, generateGeometricSequence,
-                generateLCM, generateDifferenceOfSquares, generateSumOfSeries
+                generateFibonacciLike, generateLCM, generateGCD,
+                generateDifferenceOfSquares, generateSumOfSeries, generateRepeatingDecimal
             ];
             
             problems = [];
@@ -1290,48 +1422,55 @@
                 case 1: // Arithmetic
                     generators = [generateAddition, generateSubtraction, generateMultiplication,
                                  generateDivision, generateMultiplyBy25, generateMultiplyBy99,
-                                 generateDifferenceOfSquares];
+                                 generateMultiplyBy101, generateDifferenceOfSquares];
                     break;
                 case 2: // Fractions/Decimals/Percents
                     generators = [generateFractionToDecimal, generatePercentToFraction,
-                                 generatePercentOfNumber];
+                                 generatePercentOfNumber, generateXIsWhatPercentOfY,
+                                 generatePercentGreaterThan, generateRepeatingDecimal];
                     break;
-                case 3: // Algebra
+                case 3: // Algebra & Sequences
                     generators = [generateSolveForX, generateBinomialSquare, generateOrderOfOperations,
-                                 generateArithmeticSequence, generateGeometricSequence, generateSumOfSeries];
+                                 generateArithmeticSequence, generateGeometricSequence,
+                                 generateFibonacciLike, generateSumOfSeries];
                     break;
-                case 4: // Geometry
+                case 4: // Geometry & Measurement
                     generators = [generateUnitConversion, generatePythagoreanTriple];
                     break;
                 case 5: // Number Theory
                     generators = [generateRemainder, generateSquares, generateCubes,
-                                 generateRomanNumerals, generateLCM, generateSumOfSeries];
+                                 generateRomanNumerals, generateLCM, generateGCD, generateSumOfSeries];
                     break;
                 case 6: // Estimation
                     generators = [generateSquareRootEstimation, generateLargeAddition];
                     break;
-                case 7: // Problems 1-10
+                // --- Problem-number areas reflect actual UIL test structure ---
+                case 7: // Problems 1-10  (arithmetic, fractions, GCD, roman numerals)
                     generators = [generateAddition, generateSubtraction, generateMultiplication,
-                                 generateDivision, generateFractionToDecimal, generateOrderOfOperations,
-                                 generateRomanNumerals, generateSquares, generateCubes];
+                                 generateDivision, generateFractionToDecimal, generateRepeatingDecimal,
+                                 generateLCM, generateGCD, generateOrderOfOperations, generateRomanNumerals];
                     break;
-                case 8: // Problems 11-20
+                case 8: // Problems 11-20  (multiplication, mode, squares, percent, remainder)
                     generators = [generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
-                                 generateAverage, generateMedian, generatePercentOfNumber,
-                                 generateRemainder, generateUnitConversion, generateLCM];
+                                 generateMode, generateSquares, generateRomanNumerals,
+                                 generateXIsWhatPercentOfY, generateAverage, generateRemainder,
+                                 generatePercentOfNumber, generateUnitConversion];
                     break;
-                case 9: // Problems 21-30
-                    generators = [generateRomanNumerals, generateSolveForX, generateFractionToDecimal,
-                                 generatePercentToFraction, generateArithmeticSequence,
-                                 generateGeometricSequence, generateSumOfSeries];
+                case 9: // Problems 21-30  (square root, remainder, mean, sequences, percent >, slope)
+                    generators = [generateSquares, generateCubes, generateRemainder,
+                                 generateAverage, generateRepeatingDecimal,
+                                 generateSolveForX, generatePercentGreaterThan,
+                                 generateArithmeticSequence, generateGeometricSequence, generateFibonacciLike];
                     break;
-                case 10: // Problems 31-40
-                    generators = [generateBinomialSquare, generateUnitConversion, generatePythagoreanTriple,
-                                 generateDifferenceOfSquares];
+                case 10: // Problems 31-40  (repeating decimal, squares, equation, sequences, divisors)
+                    generators = [generateRepeatingDecimal, generateSquares, generateSolveForX,
+                                 generateBinomialSquare, generateFibonacciLike, generateDifferenceOfSquares,
+                                 generateSumOfSeries, generatePercentGreaterThan];
                     break;
-                case 11: // Problems 41-50
-                    generators = [generateSquareRootEstimation, generateLargeAddition, generateSolveForX,
-                                 generateArithmeticSequence];
+                case 11: // Problems 41-50  (special mult, exponents, cube root, sequences)
+                    generators = [generateDifferenceOfSquares, generateMultiplyBy101,
+                                 generateCubes, generateSquares, generateArithmeticSequence,
+                                 generateSumOfSeries, generateSolveForX, generateBinomialSquare];
                     break;
             }
             
