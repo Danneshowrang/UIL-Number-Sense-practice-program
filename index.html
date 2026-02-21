@@ -759,7 +759,7 @@
                 problem: `${a} + ${b} = `,
                 answer: (a + b).toString(),
                 type: "Addition",
-                hint: "Add the thousands, hundreds, tens, and ones separately"
+                hint: `TRICK: Add left-to-right by column. Thousands first, then hundreds, tens, ones. ${a} + ${b} = ${a+b}`
             };
         }
 
@@ -770,48 +770,66 @@
                 problem: `${a} - ${b} = `,
                 answer: (a - b).toString(),
                 type: "Subtraction",
-                hint: "Borrow when necessary, work from right to left"
+                hint: `TRICK: Round the subtrahend up to the nearest hundred, subtract, then add back the difference. ${a} − ${b} = ${a-b}`
             };
         }
 
         function generateMultiplication() {
             const a = randomInt(10, 99);
             const b = randomInt(10, 99);
+            const ah = Math.floor(a/10)*10, al = a%10;
             return {
                 problem: `${a} × ${b} = `,
                 answer: (a * b).toString(),
                 type: "Multiplication",
-                hint: `Use FOIL: (${a} × ${b}) = ${Math.floor(a/10)*10}×${b} + ${a%10}×${b}`
+                hint: `TRICK: Break apart — (${ah} + ${al}) × ${b} = ${ah*b} + ${al*b} = ${a*b}`
             };
         }
 
         function generateDivision() {
             const divisors = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 25];
             const divisor = randomChoice(divisors);
-            const dividend = divisor * randomInt(50, 200);
+            const quotient = randomInt(50, 200);
+            const dividend = divisor * quotient;
             return {
                 problem: `${dividend} ÷ ${divisor} = `,
-                answer: (dividend / divisor).toString(),
+                answer: quotient.toString(),
                 type: "Division",
-                hint: `Since ${dividend} is ${divisor} × ${dividend/divisor}`
+                hint: `TRICK: Think multiplication — what × ${divisor} = ${dividend}? Answer: ${quotient}`
+            };
+        }
+
+        function generateLargeMultiplication() {
+            // 3-digit × 2-digit, common at P1-P3 on real UIL tests
+            const a = randomInt(100, 499);
+            const b = randomInt(11, 49);
+            const answer = a * b;
+            const bh = Math.floor(b/10)*10, bl = b%10;
+            return {
+                problem: `${a} × ${b} = `,
+                answer: answer.toString(),
+                type: "Large Multiplication",
+                hint: `TRICK: Split — ${a}×${bh} = ${a*bh}, then + ${a}×${bl} = ${a*bl}. Total: ${answer}`
             };
         }
 
         function generateFractionToDecimal() {
             const fractions = [
-                ["1/8", "0.125", "Divide 1 by 8 = 0.125"],
-                ["1/4", "0.25", "Divide 1 by 4 = 0.25"],
-                ["3/8", "0.375", "3/8 = 0.375 (half of 0.75)"],
-                ["1/2", "0.5", "1/2 = 0.5"],
-                ["5/8", "0.625", "5/8 = 0.625"],
-                ["3/4", "0.75", "3/4 = 0.75"],
-                ["7/8", "0.875", "7/8 = 0.875"],
-                ["1/3", "0.333", "1/3 ≈ 0.333..."],
-                ["2/3", "0.667", "2/3 ≈ 0.667"],
-                ["1/5", "0.2", "1/5 = 0.2"],
-                ["2/5", "0.4", "2/5 = 0.4"],
-                ["3/5", "0.6", "3/5 = 0.6"],
-                ["4/5", "0.8", "4/5 = 0.8"]
+                ["1/8", "0.125", "TRICK: 1/8 = 1/2 of 1/4 = 0.5 × 0.25 = 0.125"],
+                ["1/4", "0.25",  "TRICK: 1/4 = 25/100 = 0.25"],
+                ["3/8", "0.375", "TRICK: 3/8 = 3 × 0.125 = 0.375"],
+                ["1/2", "0.5",   "TRICK: 1/2 = 0.5 (memorize)"],
+                ["5/8", "0.625", "TRICK: 5/8 = 0.5 + 0.125 = 0.625"],
+                ["3/4", "0.75",  "TRICK: 3/4 = 75/100 = 0.75"],
+                ["7/8", "0.875", "TRICK: 7/8 = 1 − 1/8 = 1 − 0.125 = 0.875"],
+                ["1/3", "0.333", "TRICK: 1/3 = 0.333... (repeating 3). Round to 0.333"],
+                ["2/3", "0.667", "TRICK: 2/3 = 1 − 1/3 = 0.666... Round to 0.667"],
+                ["1/5", "0.2",   "TRICK: 1/5 = 2/10 = 0.2"],
+                ["2/5", "0.4",   "TRICK: 2/5 = 4/10 = 0.4"],
+                ["3/5", "0.6",   "TRICK: 3/5 = 6/10 = 0.6"],
+                ["4/5", "0.8",   "TRICK: 4/5 = 8/10 = 0.8"],
+                ["1/6", "0.167", "TRICK: 1/6 = 1/2 × 1/3 = 0.5 × 0.333 = 0.1666... ≈ 0.167"],
+                ["5/6", "0.833", "TRICK: 5/6 = 1 − 1/6 = 1 − 0.1666... = 0.8333... ≈ 0.833"]
             ];
             const choice = randomChoice(fractions);
             return {
@@ -822,21 +840,44 @@
             };
         }
 
+        function generateFractionAddition() {
+            // Add two fractions with unlike denominators — appears P5-P6 on real UIL tests
+            const pairs = [
+                [1,3,1,4,"7/12",  "TRICK: LCD=12; 4/12 + 3/12 = 7/12"],
+                [1,4,1,6,"5/12",  "TRICK: LCD=12; 3/12 + 2/12 = 5/12"],
+                [1,2,1,3,"5/6",   "TRICK: LCD=6; 3/6 + 2/6 = 5/6"],
+                [2,3,1,4,"11/12", "TRICK: LCD=12; 8/12 + 3/12 = 11/12"],
+                [3,4,1,6,"11/12", "TRICK: LCD=12; 9/12 + 2/12 = 11/12"],
+                [1,3,1,6,"1/2",   "TRICK: LCD=6; 2/6 + 1/6 = 3/6 = 1/2"],
+                [2,5,1,4,"13/20", "TRICK: LCD=20; 8/20 + 5/20 = 13/20"],
+                [3,8,1,4,"5/8",   "TRICK: LCD=8; 3/8 + 2/8 = 5/8"],
+                [1,2,2,5,"9/10",  "TRICK: LCD=10; 5/10 + 4/10 = 9/10"],
+                [5,6,1,4,"13/12", "TRICK: LCD=12; 10/12 + 3/12 = 13/12"]
+            ];
+            const c = randomChoice(pairs);
+            return {
+                problem: `${c[0]}/${c[1]} + ${c[2]}/${c[3]} = `,
+                answer: c[4],
+                type: "Fraction Addition",
+                hint: c[5]
+            };
+        }
+
         function generatePercentToFraction() {
             const percents = [
-                [25, "1/4", "25% = 25/100 = 1/4"],
-                [33, "1/3", "33% ≈ 1/3"],
-                [50, "1/2", "50% = 1/2"],
-                [66, "2/3", "66% ≈ 2/3"],
-                [75, "3/4", "75% = 3/4"],
-                [20, "1/5", "20% = 1/5"],
-                [40, "2/5", "40% = 2/5"],
-                [60, "3/5", "60% = 3/5"],
-                [80, "4/5", "80% = 4/5"],
-                [12.5, "1/8", "12.5% = 1/8"],
-                [37.5, "3/8", "37.5% = 3/8"],
-                [62.5, "5/8", "62.5% = 5/8"],
-                [87.5, "7/8", "87.5% = 7/8"]
+                [25,  "1/4", "TRICK: 25% = 25/100 = 1/4"],
+                [33,  "1/3", "TRICK: 33⅓% = 1/3 (memorize)"],
+                [50,  "1/2", "TRICK: 50% = 1/2 (memorize)"],
+                [66,  "2/3", "TRICK: 66⅔% = 2/3 (memorize)"],
+                [75,  "3/4", "TRICK: 75% = 3/4 (memorize)"],
+                [20,  "1/5", "TRICK: 20% = 1/5; multiply by 5 to get 100%"],
+                [40,  "2/5", "TRICK: 40% = 2/5"],
+                [60,  "3/5", "TRICK: 60% = 3/5"],
+                [80,  "4/5", "TRICK: 80% = 4/5"],
+                [12.5,"1/8", "TRICK: 12.5% = half of 25% = half of 1/4 = 1/8"],
+                [37.5,"3/8", "TRICK: 37.5% = 3 × 12.5% = 3/8"],
+                [62.5,"5/8", "TRICK: 62.5% = 50% + 12.5% = 1/2 + 1/8 = 5/8"],
+                [87.5,"7/8", "TRICK: 87.5% = 1 − 12.5% = 1 − 1/8 = 7/8"]
             ];
             const choice = randomChoice(percents);
             return {
@@ -848,12 +889,15 @@
         }
 
         function generateSquares() {
-            const num = randomInt(11, 25);
+            const num = randomInt(11, 30);
+            const sq = num * num;
+            const base10 = Math.round(num / 10) * 10;
+            const diff = num - base10;
             return {
                 problem: `${num}² = `,
-                answer: (num * num).toString(),
+                answer: sq.toString(),
                 type: "Squares",
-                hint: `${num} × ${num} = ${num * num}`
+                hint: `TRICK: (${base10}${diff>=0?'+':''}${diff})² = ${base10}²${diff!==0?' + 2×'+base10+'×'+diff+' + '+diff+'²':''} = ${sq}`
             };
         }
 
@@ -861,27 +905,28 @@
             const a = randomInt(1, 10);
             const b = randomInt(1, 10);
             const c = randomInt(1, 10);
-            const d = randomInt(1, 10);
+            const d = randomInt(2, 8) * 2;
             const problem = `${a} + ${b} × ${c} - ${d} ÷ 2 = `;
             const answer = (a + (b * c) - (d / 2)).toString();
             return {
                 problem: problem,
                 answer: answer,
                 type: "Order of Operations",
-                hint: `Multiply and divide first: ${b*c} and ${d/2}, then add/subtract`
+                hint: `TRICK: PEMDAS — multiply/divide first: ${b}×${c}=${b*c}, ${d}÷2=${d/2}. Then: ${a} + ${b*c} − ${d/2} = ${answer}`
             };
         }
 
         function generateRemainder() {
             const divisors = [3, 4, 5, 6, 7, 8, 9, 11];
             const divisor = randomChoice(divisors);
-            let number = randomInt(1000, 9999);
-            number = Math.floor(number / divisor) * divisor + randomInt(1, divisor - 1);
+            const rem = randomInt(1, divisor - 1);
+            let number = randomInt(100, 999);
+            number = Math.floor(number / divisor) * divisor + rem;
             return {
                 problem: `${number} ÷ ${divisor} has remainder ______`,
-                answer: (number % divisor).toString(),
+                answer: rem.toString(),
                 type: "Remainders",
-                hint: `${number} mod ${divisor} = ${number % divisor}`
+                hint: `TRICK: Nearest multiple of ${divisor} below ${number} is ${Math.floor(number/divisor)*divisor}. Remainder = ${number} − ${Math.floor(number/divisor)*divisor} = ${rem}`
             };
         }
 
@@ -892,9 +937,9 @@
             const sum = tens + ones;
             let hint;
             if (sum < 10) {
-                hint = `11 × ${num} = ${tens}${sum}${ones}`;
+                hint = `TRICK: ×11 — write outer digits, insert digit-sum in middle: ${tens}_${ones} → ${tens}${sum}${ones} = ${num*11}`;
             } else {
-                hint = `11 × ${num} = ${tens+1}${sum-10}${ones}`;
+                hint = `TRICK: ×11 — digit sum ${tens}+${ones}=${sum}≥10, carry: (${tens}+1)${sum-10}${ones} = ${num*11}`;
             }
             return {
                 problem: `${num} × 11 = `,
@@ -918,101 +963,102 @@
                 problem: `Average of ${numbers.join(", ")} = `,
                 answer: avg.toString(),
                 type: "Averages",
-                hint: `Sum: ${sum}, Count: ${count}, Average = ${sum} ÷ ${count} = ${avg}`
+                hint: `TRICK: Pick a "pivot" close to the middle, average the offsets. Or simply: sum ÷ count = ${sum} ÷ ${count} = ${avg}`
             };
         }
 
         function generatePercentOfNumber() {
-            const percent = randomChoice([25, 33, 50, 66, 75, 20, 40, 60, 80]);
+            const percent = randomChoice([10, 20, 25, 33, 40, 50, 60, 75, 80]);
             const number = randomInt(50, 200);
-            // FIXED: Use exact calculation instead of rounding
-            const answer = (number * percent / 100).toString();
+            const answer = number * percent / 100;
+            const ansStr = Number.isInteger(answer) ? answer.toString() : answer.toFixed(1);
             return {
                 problem: `${percent}% of ${number} = `,
-                answer: answer,
+                answer: ansStr,
                 type: "Percentages",
-                hint: `${percent}% = ${percent/100}, so ${number} × ${percent/100} = ${answer}`
+                hint: `TRICK: 10% of ${number} = ${number/10}. Scale to ${percent}%: multiply by ${percent/10}. Answer = ${ansStr}`
+            };
+        }
+
+        function generateDiscountProblem() {
+            // "N less X% of N" — appears in P15 range on real UIL tests
+            const n = randomChoice([60, 80, 90, 100, 120, 150, 160, 200, 250]);
+            const pct = randomChoice([10, 20, 25, 30, 40, 50]);
+            const discount = n * pct / 100;
+            const answer = n - discount;
+            return {
+                problem: `${n} less ${pct}% of ${n} = `,
+                answer: answer.toString(),
+                type: "Discount",
+                hint: `TRICK: ${pct}% of ${n} = ${discount}. Then ${n} − ${discount} = ${answer}. Or: ${n} × ${(100-pct)/100} = ${answer}`
             };
         }
 
         function generateUnitConversion() {
-            const type = randomChoice(["inches-feet", "feet-yards", "quarts-cups"]);
-            
+            const type = randomChoice(["inches-feet", "feet-yards", "quarts-cups", "oz-lbs", "pints-cups"]);
             if (type === "inches-feet") {
-                const feet = randomInt(1, 5);
-                const inches = randomInt(0, 11);
-                const answer = (feet * 12) + inches;
-                return {
-                    problem: `${feet} ft ${inches} in = ______ in`,
-                    answer: answer.toString(),
-                    type: "Unit Conversion",
-                    hint: `${feet} ft × 12 = ${feet*12} in, + ${inches} in = ${answer} in`
-                };
+                const feet = randomInt(1, 5), inches = randomInt(0, 11);
+                const answer = feet * 12 + inches;
+                return { problem: `${feet} ft ${inches} in = ______ in`, answer: answer.toString(), type: "Unit Conversion",
+                    hint: `TRICK: 1 ft = 12 in. ${feet}×12=${feet*12}, +${inches} = ${answer} in` };
             } else if (type === "feet-yards") {
-                const yards = randomInt(1, 4);
-                const feet = randomInt(0, 2);
-                const answer = (yards * 3) + feet;
-                return {
-                    problem: `${yards} yd ${feet} ft = ______ ft`,
-                    answer: answer.toString(),
-                    type: "Unit Conversion",
-                    hint: `${yards} yd × 3 = ${yards*3} ft, + ${feet} ft = ${answer} ft`
-                };
+                const yards = randomInt(1, 4), feet = randomInt(0, 2);
+                const answer = yards * 3 + feet;
+                return { problem: `${yards} yd ${feet} ft = ______ ft`, answer: answer.toString(), type: "Unit Conversion",
+                    hint: `TRICK: 1 yd = 3 ft. ${yards}×3=${yards*3}, +${feet} = ${answer} ft` };
+            } else if (type === "quarts-cups") {
+                const quarts = randomInt(1, 3), cups = randomInt(0, 3);
+                const answer = quarts * 4 + cups;
+                return { problem: `${quarts} qt ${cups} cups = ______ cups`, answer: answer.toString(), type: "Unit Conversion",
+                    hint: `TRICK: 1 qt = 4 cups. ${quarts}×4=${quarts*4}, +${cups} = ${answer} cups` };
+            } else if (type === "oz-lbs") {
+                const lbs = randomInt(1, 3), oz = randomInt(0, 15);
+                const answer = lbs * 16 + oz;
+                return { problem: `${lbs} lb ${oz} oz = ______ oz`, answer: answer.toString(), type: "Unit Conversion",
+                    hint: `TRICK: 1 lb = 16 oz. ${lbs}×16=${lbs*16}, +${oz} = ${answer} oz` };
             } else {
-                const quarts = randomInt(1, 3);
-                const cups = randomInt(0, 3);
-                const answer = (quarts * 4) + cups;
-                return {
-                    problem: `${quarts} qt ${cups} cups = ______ cups`,
-                    answer: answer.toString(),
-                    type: "Unit Conversion",
-                    hint: `${quarts} qt × 4 = ${quarts*4} cups, + ${cups} cups = ${answer} cups`
-                };
+                const pints = randomInt(1, 4), extra = randomInt(0, 1);
+                const answer = pints * 2 + extra;
+                return { problem: `${pints} pt ${extra} cup = ______ cups`, answer: answer.toString(), type: "Unit Conversion",
+                    hint: `TRICK: 1 pt = 2 cups. ${pints}×2=${pints*2}, +${extra} = ${answer} cups` };
             }
         }
 
         function generateRomanNumerals() {
             const romanMap = [
-                [27, "XXVII", "10+10+5+1+1 = XXVII"],
-                [34, "XXXIV", "10+10+10+4 = XXXIV"],
-                [42, "XLII", "40+2 = XLII"],
-                [49, "XLIX", "40+9 = XLIX"],
-                [58, "LVIII", "50+5+1+1+1 = LVIII"],
-                [66, "LXVI", "50+10+5+1 = LXVI"],
-                [73, "LXXIII", "50+10+10+1+1+1 = LXXIII"],
-                [89, "LXXXIX", "50+10+10+10+9 = LXXXIX"]
+                [14,  "XIV",      "TRICK: X=10, IV=4 (one before V). 10+4=14"],
+                [27,  "XXVII",    "TRICK: XX=20, V=5, II=2. 20+5+2=27"],
+                [34,  "XXXIV",    "TRICK: XXX=30, IV=4. 30+4=34"],
+                [42,  "XLII",     "TRICK: XL=40 (X before L means 50-10), II=2. 40+2=42"],
+                [49,  "XLIX",     "TRICK: XL=40, IX=9. 40+9=49"],
+                [58,  "LVIII",    "TRICK: L=50, V=5, III=3. 50+8=58"],
+                [66,  "LXVI",     "TRICK: LX=60, VI=6. 60+6=66"],
+                [73,  "LXXIII",   "TRICK: LXX=70, III=3. 70+3=73"],
+                [89,  "LXXXIX",   "TRICK: LXXX=80, IX=9. 80+9=89"],
+                [94,  "XCIV",     "TRICK: XC=90 (X before C means 100-10), IV=4. 90+4=94"],
+                [104, "CIV",      "TRICK: C=100, IV=4. 100+4=104"]
             ];
             const choice = randomChoice(romanMap);
-            
             if (Math.random() > 0.5) {
-                return {
-                    problem: `${choice[1]} = ______ (Arabic)`,
-                    answer: choice[0].toString(),
-                    type: "Roman Numerals",
-                    hint: choice[2]
-                };
+                return { problem: `${choice[1]} = ______ (Arabic)`, answer: choice[0].toString(), type: "Roman Numerals", hint: choice[2] };
             } else {
-                return {
-                    problem: `${choice[0]} = ______ (Roman)`,
-                    answer: choice[1],
-                    type: "Roman Numerals",
-                    hint: choice[2]
-                };
+                return { problem: `${choice[0]} = ______ (Roman)`, answer: choice[1], type: "Roman Numerals", hint: choice[2] };
             }
         }
 
         function generateSquareRootEstimation() {
-            const base = randomInt(30, 100);
+            const base = randomInt(10, 99);
             const square = base * base;
-            let offset = randomInt(-50, 50);
+            const offset = randomInt(-(base-1), base-1);
             let number = square + offset;
-            if (number < 100) number += 100;
+            if (number < 4) number = 4;
             const estimate = Math.round(Math.sqrt(number));
+            const lo = Math.floor(Math.sqrt(number)), hi = lo + 1;
             return {
                 problem: `√${number} ≈ ______ (nearest integer)`,
                 answer: estimate.toString(),
                 type: "Estimation (*)",
-                hint: `Find perfect squares near ${number}: ${base-1}²=${(base-1)*(base-1)}, ${base}²=${square}`
+                hint: `TRICK: Find perfect squares bracketing ${number}. ${lo}²=${lo*lo}, ${hi}²=${hi*hi}. ${number} is closer to ${estimate}², so answer = ${estimate}`
             };
         }
 
@@ -1021,7 +1067,7 @@
             const numbers = [];
             let sum = 0;
             for (let i = 0; i < count; i++) {
-                const num = randomInt(1000, 2000);
+                const num = randomInt(1000, 5000);
                 numbers.push(num);
                 sum += num;
             }
@@ -1030,44 +1076,41 @@
                 problem: `${numbers.join(" + ")} ≈ ______ (nearest hundred)`,
                 answer: estimate.toString(),
                 type: "Estimation (*)",
-                hint: `Round to nearest 100: ${numbers.map(n => Math.round(n/100)*100).join(" + ")} ≈ ${estimate}`
+                hint: `TRICK: Round each to nearest 100 then add. ${numbers.map(n => Math.round(n/100)*100).join(" + ")} = ${estimate}`
             };
         }
 
         function generatePythagoreanTriple() {
             const triples = [
-                [3, 4, 5, "3² + 4² = 9 + 16 = 25 = 5²"],
-                [5, 12, 13, "5² + 12² = 25 + 144 = 169 = 13²"],
-                [6, 8, 10, "6² + 8² = 36 + 64 = 100 = 10²"],
-                [7, 24, 25, "7² + 24² = 49 + 576 = 625 = 25²"],
-                [8, 15, 17, "8² + 15² = 64 + 225 = 289 = 17²"]
+                [3, 4, 5,   "TRICK: Memorize 3-4-5. 9+16=25"],
+                [5, 12, 13, "TRICK: Memorize 5-12-13. 25+144=169"],
+                [6, 8, 10,  "TRICK: 2×(3-4-5). 36+64=100"],
+                [8, 15, 17, "TRICK: Memorize 8-15-17. 64+225=289"],
+                [7, 24, 25, "TRICK: Memorize 7-24-25. 49+576=625"],
+                [9, 12, 15, "TRICK: 3×(3-4-5). 81+144=225"],
+                [10, 24, 26,"TRICK: 2×(5-12-13). 100+576=676"]
             ];
             const triple = randomChoice(triples);
             const missingIndex = randomInt(0, 2);
-            const given = [];
-            for (let i = 0; i < 3; i++) {
-                if (i !== missingIndex) {
-                    given.push(triple[i]);
-                }
-            }
+            const given = [0,1,2].filter(i=>i!==missingIndex).map(i=>triple[i]);
             return {
-                problem: `Right triangle: legs ${given[0]} and ${given[1]}, hypotenuse = ______`,
+                problem: `Right triangle sides: ${given[0]}, ${given[1]}, and ______`,
                 answer: triple[missingIndex].toString(),
-                type: "Geometry",
+                type: "Pythagorean Triples",
                 hint: triple[3]
             };
         }
 
         function generateSolveForX() {
             const a = randomInt(2, 9);
-            const b = a * 2;
-            const c = a * 5;
-            const x = (c - b) / a;
+            const x = randomInt(2, 9);
+            const b = randomInt(1, 15);
+            const c = a * x + b;
             return {
-                problem: `${a}x + ${b} = ${c}, then x = ______`,
+                problem: `${a}x + ${b} = ${c}, x = ______`,
                 answer: x.toString(),
                 type: "Algebra",
-                hint: `${a}x = ${c} - ${b} = ${c-b}, so x = ${c-b} ÷ ${a} = ${x}`
+                hint: `TRICK: Subtract ${b} from both sides → ${a}x = ${c-b}. Divide by ${a} → x = ${c-b}÷${a} = ${x}`
             };
         }
 
@@ -1075,28 +1118,24 @@
             const a = randomInt(2, 5);
             const b = randomInt(1, 4);
             const sign = randomChoice(["+", "-"]);
-            let sum;
-            if (sign === "+") {
-                sum = a*a + 2*a*b + b*b;
-            } else {
-                sum = a*a - 2*a*b + b*b;
-            }
+            const k = a*a, m = sign==="+" ? 2*a*b : -2*a*b, n = b*b;
+            const sum = k + m + n;
             return {
-                problem: `If (${a}x ${sign} ${b})² = kx² + mx + n, then k + m + n = ______`,
+                problem: `(${a}x ${sign} ${b})² = kx² + mx + n, then k + m + n = ______`,
                 answer: sum.toString(),
                 type: "Algebra",
-                hint: `(${a}x ${sign} ${b})² = ${a*a}x² ${sign === "+" ? "+ " : "- "}${2*a*b}x + ${b*b}, sum = ${sum}`
+                hint: `TRICK: Plug in x=1 to get sum of coefficients: (${a}×1 ${sign} ${b})² = ${a+(sign==="+"?b:-b)}² = ${sum}`
             };
         }
 
         function generateMultiplyBy25() {
-            const n = randomInt(12, 60);
+            const n = randomInt(12, 80);
             const answer = n * 25;
             return {
                 problem: `${n} × 25 = `,
                 answer: answer.toString(),
                 type: "Multiplication Trick (×25)",
-                hint: `${n} × 25 = ${n} × 100 ÷ 4 = ${n * 100} ÷ 4 = ${answer}`
+                hint: `TRICK: ×25 = ×100÷4. ${n}×100=${n*100}, ÷4 = ${answer}`
             };
         }
 
@@ -1107,7 +1146,7 @@
                 problem: `${n} × 99 = `,
                 answer: answer.toString(),
                 type: "Multiplication Trick (×99)",
-                hint: `${n} × 99 = ${n} × 100 − ${n} = ${n * 100} − ${n} = ${answer}`
+                hint: `TRICK: ×99 = ×100−n. ${n}×100=${n*100}, −${n} = ${answer}`
             };
         }
 
@@ -1118,7 +1157,7 @@
                 problem: `${num}³ = `,
                 answer: cube.toString(),
                 type: "Perfect Cubes",
-                hint: `${num} × ${num} = ${num * num}, then × ${num} = ${cube}`
+                hint: `TRICK: Memorize cubes 1–12. ${num}²=${num*num}, ×${num} = ${cube}`
             };
         }
 
@@ -1133,7 +1172,7 @@
                 problem: `${terms.join(', ')}, ___ = ?`,
                 answer: next.toString(),
                 type: "Arithmetic Sequence",
-                hint: `Common difference = ${step}; next = ${terms[shown - 1]} + ${step} = ${next}`
+                hint: `TRICK: Subtract consecutive terms to find common difference d=${step}. Next = ${terms[shown-1]} + ${step} = ${next}`
             };
         }
 
@@ -1148,53 +1187,59 @@
                 problem: `${terms.join(', ')}, ___ = ?`,
                 answer: next.toString(),
                 type: "Geometric Sequence",
-                hint: `Common ratio = ${ratio}; next = ${terms[shown - 1]} × ${ratio} = ${next}`
+                hint: `TRICK: Divide consecutive terms to find ratio r=${ratio}. Next = ${terms[shown-1]} × ${ratio} = ${next}`
             };
         }
 
         function generateLCM() {
             const pairs = [
-                [4, 6, 12], [3, 8, 24], [4, 10, 20], [6, 9, 18], [5, 6, 30],
-                [4, 14, 28], [6, 8, 24], [9, 12, 36], [10, 15, 30], [6, 10, 30],
-                [5, 8, 40], [4, 9, 36], [3, 10, 30], [6, 14, 42], [8, 12, 24]
+                [4,  6,  12, "TRICK: LCM(4,6) — GCD=2, so LCM=4×6÷2=12"],
+                [3,  8,  24, "TRICK: LCM(3,8) — GCD=1, so LCM=3×8=24"],
+                [4,  10, 20, "TRICK: LCM(4,10) — GCD=2, so LCM=4×10÷2=20"],
+                [6,  9,  18, "TRICK: LCM(6,9) — GCD=3, so LCM=6×9÷3=18"],
+                [5,  6,  30, "TRICK: LCM(5,6) — GCD=1, so LCM=5×6=30"],
+                [4,  14, 28, "TRICK: LCM(4,14) — GCD=2, so LCM=4×14÷2=28"],
+                [9,  12, 36, "TRICK: LCM(9,12) — GCD=3, so LCM=9×12÷3=36"],
+                [10, 15, 30, "TRICK: LCM(10,15) — GCD=5, so LCM=10×15÷5=30"],
+                [5,  8,  40, "TRICK: LCM(5,8) — GCD=1, so LCM=5×8=40"],
+                [8,  12, 24, "TRICK: LCM(8,12) — GCD=4, so LCM=8×12÷4=24"]
             ];
             const choice = randomChoice(pairs);
             return {
                 problem: `LCM(${choice[0]}, ${choice[1]}) = `,
                 answer: choice[2].toString(),
                 type: "LCM",
-                hint: `LCM(${choice[0]}, ${choice[1]}) = ${choice[2]}`
+                hint: choice[3]
             };
         }
 
         function generateDifferenceOfSquares() {
-            // (a+b)(a-b) = a² - b²; pick numbers that differ by 2b
-            const a = randomInt(15, 50);
-            const b = randomInt(1, 5);
-            const x = a + b;
-            const y = a - b;
+            // Real UIL tests use numbers like 352×358, 451×459 — differ by small even amount
+            const a = randomInt(20, 200);
+            const b = randomInt(1, 8);
+            const x = a + b, y = a - b;
             const answer = a * a - b * b;
             return {
                 problem: `${x} × ${y} = `,
                 answer: answer.toString(),
                 type: "Difference of Squares",
-                hint: `(${a}+${b})(${a}−${b}) = ${a}² − ${b}² = ${a * a} − ${b * b} = ${answer}`
+                hint: `TRICK: (a+b)(a−b)=a²−b². Here a=${a}, b=${b}. So ${a}²−${b}²=${a*a}−${b*b}=${answer}`
             };
         }
 
         function generateSumOfSeries() {
-            const n = randomInt(8, 25);
+            const n = randomInt(8, 30);
             const answer = n * (n + 1) / 2;
             return {
                 problem: `1 + 2 + 3 + ... + ${n} = `,
                 answer: answer.toString(),
                 type: "Sum of Series",
-                hint: `n(n+1)/2 = ${n}×${n + 1}/2 = ${n * (n + 1)}/2 = ${answer}`
+                hint: `TRICK: Gauss formula n(n+1)/2. ${n}×${n+1}/2 = ${n*(n+1)}/2 = ${answer}`
             };
         }
 
         function generateMedian() {
-            const count = randomChoice([3, 5]);
+            const count = randomChoice([3, 5, 7]);
             const nums = [];
             for (let i = 0; i < count; i++) nums.push(randomInt(10, 99));
             const sorted = [...nums].sort((a, b) => a - b);
@@ -1203,31 +1248,41 @@
                 problem: `Median of {${nums.join(', ')}} = `,
                 answer: median.toString(),
                 type: "Median",
-                hint: `Sorted: ${sorted.join(', ')}; middle value = ${median}`
+                hint: `TRICK: Sort the list, take the middle value. Sorted: {${sorted.join(', ')}} → median = ${median}`
             };
         }
 
-        // --- Generators added from real UIL test analysis ---
+        // --- Generators from real UIL test analysis ---
 
         function generateGCD() {
             const pairs = [
-                [12, 18, 6], [15, 25, 5], [24, 36, 12], [16, 24, 8], [21, 14, 7],
-                [56, 84, 28], [18, 63, 9], [48, 72, 24], [35, 49, 7], [32, 48, 16],
-                [30, 45, 15], [20, 28, 4], [36, 60, 12], [42, 70, 14], [54, 36, 18],
-                [16, 40, 8], [24, 64, 8], [28, 42, 14], [60, 80, 20], [45, 75, 15]
+                [12, 18, 6,  "TRICK: Euclidean — 18=12×1+6, 12=6×2+0 → GCD=6"],
+                [15, 25, 5,  "TRICK: Both divisible by 5 → GCD=5"],
+                [24, 36, 12, "TRICK: 36=24×1+12, 24=12×2+0 → GCD=12"],
+                [16, 24, 8,  "TRICK: 24=16×1+8, 16=8×2+0 → GCD=8"],
+                [21, 14, 7,  "TRICK: Both divisible by 7 → GCD=7"],
+                [56, 84, 28, "TRICK: 84=56×1+28, 56=28×2+0 → GCD=28"],
+                [18, 63, 9,  "TRICK: 63=18×3+9, 18=9×2+0 → GCD=9"],
+                [48, 72, 24, "TRICK: 72=48×1+24, 48=24×2+0 → GCD=24"],
+                [35, 49, 7,  "TRICK: Both divisible by 7 → GCD=7"],
+                [32, 48, 16, "TRICK: 48=32×1+16, 32=16×2+0 → GCD=16"],
+                [30, 45, 15, "TRICK: Both divisible by 15 → GCD=15"],
+                [36, 60, 12, "TRICK: 60=36×1+24, 36=24×1+12, 24=12×2 → GCD=12"],
+                [60, 80, 20, "TRICK: Both divisible by 20 → GCD=20"],
+                [45, 75, 15, "TRICK: Both divisible by 15 → GCD=15"]
             ];
             const choice = randomChoice(pairs);
             return {
-                problem: `The GCD of ${choice[0]} and ${choice[1]} is `,
+                problem: `GCD of ${choice[0]} and ${choice[1]} = `,
                 answer: choice[2].toString(),
                 type: "GCD",
-                hint: `GCD(${choice[0]}, ${choice[1]}) = ${choice[2]}`
+                hint: choice[3]
             };
         }
 
         function generateMode() {
             const mode = randomInt(1, 9);
-            const count = randomInt(3, 4); // mode appears this many times
+            const count = randomInt(3, 4);
             const nums = [];
             for (let i = 0; i < count; i++) nums.push(mode);
             const total = randomInt(7, 10);
@@ -1240,27 +1295,29 @@
                 [nums[i], nums[j]] = [nums[j], nums[i]];
             }
             return {
-                problem: `The mode of {${nums.join(', ')}} is `,
+                problem: `Mode of {${nums.join(', ')}} = `,
                 answer: mode.toString(),
                 type: "Mode",
-                hint: `${mode} appears ${count} times — more than any other value`
+                hint: `TRICK: Mode = most frequent value. Tally each number — ${mode} appears ${count} times, more than any other.`
             };
         }
 
         function generateRepeatingDecimal() {
             const conversions = [
-                ["0.3333...", "1/3",   "10x - x = 9x = 3, x = 1/3"],
-                ["0.6666...", "2/3",   "10x - x = 9x = 6, x = 2/3"],
-                ["0.1666...", "1/6",   "0.1666... = 1/6"],
-                ["0.4166...", "5/12",  "0.4166... = 5/12"],
-                ["0.4777...", "43/90", "10x = 4.777..., 100x = 47.777...; 90x = 43"],
-                ["0.2555...", "23/90", "100x - 10x = 90x = 23, x = 23/90"],
-                ["0.1222...", "11/90", "90x = 11, x = 11/90"],
-                ["0.8333...", "5/6",   "10x - x = 9x = 7.5, x = 5/6"],
-                ["0.1111...", "1/9",   "9x = 1, x = 1/9"],
-                ["0.2222...", "2/9",   "9x = 2, x = 2/9"],
-                ["0.5555...", "5/9",   "9x = 5, x = 5/9"],
-                ["0.0833...", "1/12",  "0.0833... = 1/12"]
+                ["0.3333...", "1/3",   "TRICK: Let x=0.333...; 10x=3.333...; 9x=3; x=1/3"],
+                ["0.6666...", "2/3",   "TRICK: 2×(1/3). Or 9x=6 → x=2/3"],
+                ["0.1666...", "1/6",   "TRICK: 1/6 = 1/2 × 1/3. Or 6x=1 → x=1/6"],
+                ["0.4166...", "5/12",  "TRICK: 0.4166... = 0.5 − 0.0833... = 1/2 − 1/12 = 5/12"],
+                ["0.4777...", "43/90", "TRICK: 10x=4.777..., 100x=47.777...; 90x=43 → x=43/90"],
+                ["0.2555...", "23/90", "TRICK: 100x−10x=90x=23 → x=23/90"],
+                ["0.1222...", "11/90", "TRICK: 90x=11 → x=11/90"],
+                ["0.8333...", "5/6",   "TRICK: 9x=7.5 → x=5/6. Or 1−1/6=5/6"],
+                ["0.1111...", "1/9",   "TRICK: 9x=1 → x=1/9"],
+                ["0.2222...", "2/9",   "TRICK: 9x=2 → x=2/9"],
+                ["0.5555...", "5/9",   "TRICK: 9x=5 → x=5/9"],
+                ["0.0833...", "1/12",  "TRICK: 1/12 = half of 1/6. Or 12x=1 → x=1/12"],
+                ["0.4444...", "4/9",   "TRICK: 9x=4 → x=4/9"],
+                ["0.7777...", "7/9",   "TRICK: 9x=7 → x=7/9"]
             ];
             const choice = randomChoice(conversions);
             return {
@@ -1273,35 +1330,50 @@
 
         function generateXIsWhatPercentOfY() {
             const problems = [
-                [17, 85, 20], [15, 60, 25], [12, 48, 25], [18, 72, 25],
-                [30, 120, 25], [16, 80, 20], [14, 70, 20], [24, 80, 30],
-                [21, 70, 30], [36, 90, 40], [15, 75, 20], [18, 90, 20],
-                [32, 160, 20], [25, 125, 20], [45, 180, 25], [40, 200, 20]
+                [17, 85, 20,  "TRICK: 17÷85 = 1/5 = 20%"],
+                [15, 60, 25,  "TRICK: 15÷60 = 1/4 = 25%"],
+                [12, 48, 25,  "TRICK: 12÷48 = 1/4 = 25%"],
+                [18, 72, 25,  "TRICK: 18÷72 = 1/4 = 25%"],
+                [30, 120, 25, "TRICK: 30÷120 = 1/4 = 25%"],
+                [16, 80, 20,  "TRICK: 16÷80 = 1/5 = 20%"],
+                [14, 70, 20,  "TRICK: 14÷70 = 1/5 = 20%"],
+                [24, 80, 30,  "TRICK: 24÷80 = 3/10 = 30%"],
+                [36, 90, 40,  "TRICK: 36÷90 = 2/5 = 40%"],
+                [15, 75, 20,  "TRICK: 15÷75 = 1/5 = 20%"],
+                [25, 125, 20, "TRICK: 25÷125 = 1/5 = 20%"],
+                [45, 180, 25, "TRICK: 45÷180 = 1/4 = 25%"],
+                [40, 200, 20, "TRICK: 40÷200 = 1/5 = 20%"],
+                [18, 45, 40,  "TRICK: 18÷45 = 2/5 = 40%"],
+                [24, 60, 40,  "TRICK: 24÷60 = 2/5 = 40%"]
             ];
             const choice = randomChoice(problems);
             return {
                 problem: `${choice[0]} is what % of ${choice[1]}? `,
                 answer: choice[2].toString(),
                 type: "Percent (X is what % of Y)",
-                hint: `${choice[0]} ÷ ${choice[1]} × 100 = ${choice[2]}%`
+                hint: choice[3]
             };
         }
 
         function generatePercentGreaterThan() {
             const cases = [
-                [50, 40, "greater", 25], [60, 50, "greater", 20],
-                [120, 100, "greater", 20], [110, 100, "greater", 10],
-                [150, 100, "greater", 50], [24, 20, "greater", 20],
-                [48, 40, "greater", 20], [75, 60, "greater", 25],
-                [30, 24, "greater", 25], [35, 28, "greater", 25],
-                [45, 36, "greater", 25], [84, 70, "greater", 20]
+                [50, 40, "greater", 25, "TRICK: diff=10, base=40. 10÷40=1/4=25%"],
+                [60, 50, "greater", 20, "TRICK: diff=10, base=50. 10÷50=1/5=20%"],
+                [120, 100, "greater", 20, "TRICK: diff=20, base=100. 20÷100=20%"],
+                [110, 100, "greater", 10, "TRICK: diff=10, base=100. 10÷100=10%"],
+                [150, 100, "greater", 50, "TRICK: diff=50, base=100. 50÷100=50%"],
+                [24, 20, "greater", 20, "TRICK: diff=4, base=20. 4÷20=1/5=20%"],
+                [75, 60, "greater", 25, "TRICK: diff=15, base=60. 15÷60=1/4=25%"],
+                [30, 24, "greater", 25, "TRICK: diff=6, base=24. 6÷24=1/4=25%"],
+                [84, 70, "greater", 20, "TRICK: diff=14, base=70. 14÷70=1/5=20%"],
+                [45, 36, "greater", 25, "TRICK: diff=9, base=36. 9÷36=1/4=25%"]
             ];
             const choice = randomChoice(cases);
             return {
                 problem: `${choice[0]} is what % ${choice[2]} than ${choice[1]}? `,
                 answer: choice[3].toString(),
                 type: "Percent Greater/Less Than",
-                hint: `(${choice[0]} − ${choice[1]}) ÷ ${choice[1]} × 100 = ${choice[3]}%`
+                hint: choice[4]
             };
         }
 
@@ -1315,7 +1387,7 @@
                 problem: `${terms.slice(0, shown).join(', ')}, ___ = ?`,
                 answer: terms[shown].toString(),
                 type: "Fibonacci Sequence",
-                hint: `Each term = sum of two previous: ${terms[shown-1]} + ${terms[shown-2]} = ${terms[shown]}`
+                hint: `TRICK: Each term = previous two added. ${terms[shown-2]} + ${terms[shown-1]} = ${terms[shown]}`
             };
         }
 
@@ -1326,7 +1398,7 @@
                 problem: `${n} × 101 = `,
                 answer: answer.toString(),
                 type: "Multiplication Trick (×101)",
-                hint: `${n} × 101 = ${n} × 100 + ${n} = ${n*100} + ${n} = ${answer}`
+                hint: `TRICK: ×101 = ×100 + n. ${n}×100=${n*100}, +${n} = ${answer}. The two-digit number ${n} repeats in the result.`
             };
         }
 
@@ -1366,15 +1438,15 @@
         function startQuickPractice() {
             practiceMode = 'quick';
             const generators = [
-                generateAddition, generateSubtraction, generateMultiplication,
-                generateDivision, generateFractionToDecimal, generatePercentToFraction,
-                generateSquares, generateCubes, generateOrderOfOperations, generateRemainder,
-                generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
+                generateAddition, generateSubtraction, generateMultiplication, generateDivision,
+                generateLargeMultiplication, generateFractionToDecimal, generateFractionAddition,
+                generatePercentToFraction, generateSquares, generateCubes, generateOrderOfOperations,
+                generateRemainder, generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
                 generateMultiplyBy101, generateAverage, generateMedian, generateMode,
-                generatePercentOfNumber, generateXIsWhatPercentOfY, generatePercentGreaterThan,
-                generateUnitConversion, generateRomanNumerals, generateSolveForX,
-                generateArithmeticSequence, generateGeometricSequence, generateFibonacciLike,
-                generateLCM, generateGCD, generateDifferenceOfSquares,
+                generatePercentOfNumber, generateDiscountProblem, generateXIsWhatPercentOfY,
+                generatePercentGreaterThan, generateUnitConversion, generateRomanNumerals,
+                generateSolveForX, generateArithmeticSequence, generateGeometricSequence,
+                generateFibonacciLike, generateLCM, generateGCD, generateDifferenceOfSquares,
                 generateSumOfSeries, generateRepeatingDecimal
             ];
             
@@ -1390,27 +1462,67 @@
             if (!confirm("Ready to begin? You'll have 10 minutes for 80 problems.")) {
                 return;
             }
-            
+
             practiceMode = 'full';
-            const allGenerators = [
-                generateAddition, generateSubtraction, generateMultiplication,
-                generateDivision, generateFractionToDecimal, generatePercentToFraction,
-                generateSquares, generateCubes, generateOrderOfOperations, generateRemainder,
-                generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
-                generateMultiplyBy101, generateAverage, generateMedian, generateMode,
-                generatePercentOfNumber, generateXIsWhatPercentOfY, generatePercentGreaterThan,
-                generateUnitConversion, generateRomanNumerals, generateSquareRootEstimation,
-                generateLargeAddition, generatePythagoreanTriple, generateSolveForX,
-                generateBinomialSquare, generateArithmeticSequence, generateGeometricSequence,
-                generateFibonacciLike, generateLCM, generateGCD,
-                generateDifferenceOfSquares, generateSumOfSeries, generateRepeatingDecimal
-            ];
-            
+
+            // Position-accurate pools based on real UIL Number Sense test structure.
+            // Every 10th problem (indices 9,19,29,...,79) is starred (*) estimation.
+            const pools = {
+                // P1-P9: arithmetic, fractions, GCD, LCM, roman numerals
+                early: [generateAddition, generateSubtraction, generateLargeMultiplication,
+                        generateDivision, generateFractionToDecimal, generateFractionAddition,
+                        generateRepeatingDecimal, generateLCM, generateGCD,
+                        generateOrderOfOperations, generateRomanNumerals],
+                // P11-P19: ×11, ×25, ×99, mode, squares, percent, remainder, average
+                p11: [generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
+                      generateMode, generateSquares, generateRomanNumerals,
+                      generateXIsWhatPercentOfY, generateDiscountProblem, generateAverage,
+                      generateRemainder, generatePercentOfNumber, generateUnitConversion],
+                // P21-P29: squares, cubes, remainder, average, sequences, percent >, algebra
+                p21: [generateSquares, generateCubes, generateRemainder, generateAverage,
+                      generateRepeatingDecimal, generateSolveForX, generatePercentGreaterThan,
+                      generateArithmeticSequence, generateGeometricSequence, generateFibonacciLike,
+                      generatePercentToFraction],
+                // P31-P39: repeating decimal, squares, algebra, sequences, diff of squares
+                p31: [generateRepeatingDecimal, generateSquares, generateSolveForX,
+                      generateBinomialSquare, generateFibonacciLike, generateDifferenceOfSquares,
+                      generateSumOfSeries, generatePercentGreaterThan, generateArithmeticSequence],
+                // P41-P49: special mult, exponents, cube, sequences, algebra
+                p41: [generateDifferenceOfSquares, generateMultiplyBy101, generateCubes,
+                      generateSquares, generateArithmeticSequence, generateSumOfSeries,
+                      generateSolveForX, generateBinomialSquare, generateGeometricSequence],
+                // P51-P59: harder algebra, sequences, number theory
+                p51: [generateBinomialSquare, generateDifferenceOfSquares, generateSumOfSeries,
+                      generateArithmeticSequence, generateCubes, generateSolveForX,
+                      generateMultiplyBy101, generatePythagoreanTriple, generateFibonacciLike],
+                // P61-P69: geometry, harder problems
+                p61: [generatePythagoreanTriple, generateBinomialSquare, generateDifferenceOfSquares,
+                      generateSumOfSeries, generateCubes, generateArithmeticSequence,
+                      generateGeometricSequence, generateSolveForX],
+                // P71-P79: hardest problems
+                p71: [generatePythagoreanTriple, generateBinomialSquare, generateDifferenceOfSquares,
+                      generateSumOfSeries, generateCubes, generateGeometricSequence,
+                      generateFibonacciLike, generateMultiplyBy101],
+                // Starred estimation problems (*) at positions 10,20,30,40,50,60,70,80
+                estimation: [generateSquareRootEstimation, generateLargeAddition]
+            };
+
             problems = [];
             for (let i = 0; i < 80; i++) {
-                problems.push(randomChoice(allGenerators)());
+                const pos = i + 1; // 1-indexed problem number
+                if (pos % 10 === 0) {
+                    // Starred estimation problem
+                    problems.push(randomChoice(pools.estimation)());
+                } else if (pos <= 9)  { problems.push(randomChoice(pools.early)());
+                } else if (pos <= 19) { problems.push(randomChoice(pools.p11)());
+                } else if (pos <= 29) { problems.push(randomChoice(pools.p21)());
+                } else if (pos <= 39) { problems.push(randomChoice(pools.p31)());
+                } else if (pos <= 49) { problems.push(randomChoice(pools.p41)());
+                } else if (pos <= 59) { problems.push(randomChoice(pools.p51)());
+                } else if (pos <= 69) { problems.push(randomChoice(pools.p61)());
+                } else               { problems.push(randomChoice(pools.p71)()); }
             }
-            
+
             startPracticeSession(80, 600); // 10 minutes = 600 seconds
         }
 
@@ -1445,32 +1557,34 @@
                     generators = [generateSquareRootEstimation, generateLargeAddition];
                     break;
                 // --- Problem-number areas reflect actual UIL test structure ---
-                case 7: // Problems 1-10  (arithmetic, fractions, GCD, roman numerals)
-                    generators = [generateAddition, generateSubtraction, generateMultiplication,
-                                 generateDivision, generateFractionToDecimal, generateRepeatingDecimal,
-                                 generateLCM, generateGCD, generateOrderOfOperations, generateRomanNumerals];
+                case 7: // Problems 1-10  (arithmetic, fractions, GCD, LCM, roman numerals)
+                    generators = [generateAddition, generateSubtraction, generateLargeMultiplication,
+                                 generateDivision, generateFractionToDecimal, generateFractionAddition,
+                                 generateRepeatingDecimal, generateLCM, generateGCD,
+                                 generateOrderOfOperations, generateRomanNumerals];
                     break;
-                case 8: // Problems 11-20  (multiplication, mode, squares, percent, remainder)
+                case 8: // Problems 11-20  (×11, ×25, ×99, mode, squares, percent, remainder, discount)
                     generators = [generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
                                  generateMode, generateSquares, generateRomanNumerals,
-                                 generateXIsWhatPercentOfY, generateAverage, generateRemainder,
-                                 generatePercentOfNumber, generateUnitConversion];
+                                 generateXIsWhatPercentOfY, generateDiscountProblem, generateAverage,
+                                 generateRemainder, generatePercentOfNumber, generateUnitConversion];
                     break;
-                case 9: // Problems 21-30  (square root, remainder, mean, sequences, percent >, slope)
+                case 9: // Problems 21-30  (squares, cubes, remainder, sequences, percent >, algebra)
                     generators = [generateSquares, generateCubes, generateRemainder,
                                  generateAverage, generateRepeatingDecimal,
                                  generateSolveForX, generatePercentGreaterThan,
                                  generateArithmeticSequence, generateGeometricSequence, generateFibonacciLike];
                     break;
-                case 10: // Problems 31-40  (repeating decimal, squares, equation, sequences, divisors)
+                case 10: // Problems 31-40  (repeating decimal, squares, algebra, sequences, diff of squares)
                     generators = [generateRepeatingDecimal, generateSquares, generateSolveForX,
                                  generateBinomialSquare, generateFibonacciLike, generateDifferenceOfSquares,
-                                 generateSumOfSeries, generatePercentGreaterThan];
+                                 generateSumOfSeries, generatePercentGreaterThan, generateArithmeticSequence];
                     break;
-                case 11: // Problems 41-50  (special mult, exponents, cube root, sequences)
+                case 11: // Problems 41-50  (×101, diff of squares, cubes, sequences, algebra)
                     generators = [generateDifferenceOfSquares, generateMultiplyBy101,
                                  generateCubes, generateSquares, generateArithmeticSequence,
-                                 generateSumOfSeries, generateSolveForX, generateBinomialSquare];
+                                 generateSumOfSeries, generateSolveForX, generateBinomialSquare,
+                                 generateGeometricSequence];
                     break;
             }
             
