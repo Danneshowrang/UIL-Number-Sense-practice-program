@@ -1437,24 +1437,32 @@
         // ===== PRACTICE SESSION FUNCTIONS =====
         function startQuickPractice() {
             practiceMode = 'quick';
-            const generators = [
-                generateAddition, generateSubtraction, generateMultiplication, generateDivision,
-                generateLargeMultiplication, generateFractionToDecimal, generateFractionAddition,
-                generatePercentToFraction, generateSquares, generateCubes, generateOrderOfOperations,
-                generateRemainder, generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99,
-                generateMultiplyBy101, generateAverage, generateMedian, generateMode,
-                generatePercentOfNumber, generateDiscountProblem, generateXIsWhatPercentOfY,
-                generatePercentGreaterThan, generateUnitConversion, generateRomanNumerals,
-                generateSolveForX, generateArithmeticSequence, generateGeometricSequence,
-                generateFibonacciLike, generateLCM, generateGCD, generateDifferenceOfSquares,
-                generateSumOfSeries, generateRepeatingDecimal
+            // One problem picked from each category, ordered easy → hard,
+            // so every session has balanced variety and a natural difficulty ramp.
+            const slots = [
+                // Slot 1 – basic arithmetic (very easy warm-up)
+                [generateAddition, generateSubtraction],
+                // Slot 2 – multiplication trick
+                [generateMultiplicationBy11, generateMultiplyBy25, generateMultiplyBy99, generateMultiplyBy101],
+                // Slot 3 – fractions / decimals
+                [generateFractionToDecimal, generateRepeatingDecimal, generateFractionAddition],
+                // Slot 4 – percent
+                [generatePercentOfNumber, generateXIsWhatPercentOfY, generateDiscountProblem, generatePercentGreaterThan],
+                // Slot 5 – powers & roots
+                [generateSquares, generateCubes],
+                // Slot 6 – statistics (avg / median / mode)
+                [generateAverage, generateMedian, generateMode],
+                // Slot 7 – number theory (GCD / LCM / remainder / roman)
+                [generateLCM, generateGCD, generateRemainder, generateRomanNumerals],
+                // Slot 8 – algebra
+                [generateSolveForX, generateOrderOfOperations],
+                // Slot 9 – sequences
+                [generateArithmeticSequence, generateGeometricSequence, generateFibonacciLike],
+                // Slot 10 – harder algebra / number theory
+                [generateDifferenceOfSquares, generateSumOfSeries, generateLargeMultiplication],
             ];
-            
-            problems = [];
-            for (let i = 0; i < 10; i++) {
-                problems.push(randomChoice(generators)());
-            }
-            
+
+            problems = slots.map(pool => randomChoice(pool)());
             startPracticeSession(10);
         }
 
